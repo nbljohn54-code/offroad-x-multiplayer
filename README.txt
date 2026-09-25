@@ -1,33 +1,21 @@
-OFFROAD X MULTIPLAYER — MOBILE EDITION
+# NBLJOHN GAME — Internet Multiplayer Relay
 
-CONTROLS
-Left side:
-  ◀ TURN LEFT
-  ▶ TURN RIGHT
+This version changes the multiplayer transport from direct browser-to-browser PeerJS connections to a small WebSocket room relay. That means players can join the same room from different internet connections instead of depending on a direct WebRTC path.
 
-Right side:
-  GO = accelerate/forward
-  BACK = reverse
-  BOOST = turbo
-  HAND BRAKE = brake/drift
-  REPAIR = restore vehicle health
+## Files
+- `index.html` — the game with internet multiplayer support.
+- `server.js` — the room relay server.
+- `package.json` — Node dependency/start command.
 
-MULTIPLAYER
-The game has Create Server, Join Server, room codes, optional passwords,
-ready status, host start, player list, and real-time vehicle state.
+## Deploy
+1. Put these three files in a GitHub repository.
+2. Create a Node web service on your hosting provider and use the repository.
+3. Build command: `npm install`
+4. Start command: `npm start`
+5. Copy the public HTTPS service address.
+6. In `index.html`, replace `https://YOUR-RENDER-APP.onrender.com` in `WS_RELAY_URL` with the service address, changing `https://` to `wss://`.
 
-IMPORTANT FOR INTERNET PLAY
-A browser HTML file by itself cannot create an Internet multiplayer server.
-The Node.js server in this project must run on an Internet-accessible Node.js
-hosting service that supports WebSockets/Socket.IO.
+The game then uses six-character room codes. The server supports up to 8 players per room.
 
-LOCAL TEST
-1. Install Node.js on a computer.
-2. Extract this ZIP.
-3. Open a terminal in the extracted folder.
-4. Run: npm install
-5. Run: npm start
-6. Open http://localhost:3000
-
-For Internet play, deploy the whole Node project to a Node.js host and open
-the public HTTPS address. No GitHub account is required by this game itself.
+## Important
+The relay is only the signaling/game-message transport. Keep the server running while players are using multiplayer.
