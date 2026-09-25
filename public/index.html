@@ -1,109 +1,2035 @@
-<!doctype html>
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
-<title>OFFROAD X Multiplayer</title>
-<style>
-*{box-sizing:border-box}html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#080b10;color:white;font-family:Arial,sans-serif;touch-action:none;user-select:none}
-canvas{position:fixed;inset:0;width:100%;height:100%;background:#172019}
-.screen{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(#07101acc,#07101a88);z-index:20}
-.card{width:min(440px,94vw);background:#111923ee;border:1px solid #ffffff20;border-radius:22px;padding:22px;box-shadow:0 20px 60px #0009}
-h1{margin:0 0 6px;font-size:32px}p{color:#aeb9c7}.row{display:flex;gap:10px}.row>*{flex:1}
-input,button{width:100%;padding:15px;border-radius:13px;border:1px solid #ffffff20;background:#202b38;color:white;font-size:16px;margin:6px 0}
-button{font-weight:800;background:#e85d2a;border:0}.secondary{background:#344355}.danger{background:#8d3030}
-.hidden{display:none!important}
-#hud{position:fixed;inset:0;z-index:5;pointer-events:none}
-#top{position:absolute;top:max(12px,env(safe-area-inset-top));left:12px;right:12px;display:flex;justify-content:space-between;align-items:center}
-.pill{background:#101722d9;border:1px solid #ffffff20;padding:8px 12px;border-radius:14px;font-weight:700}
-#rooms{max-height:210px;overflow:auto;margin-top:8px}.room{display:flex;align-items:center;gap:8px;background:#1a2531;padding:10px;border-radius:12px;margin:6px 0}.room span{flex:1}
-#controls{position:fixed;inset:0;z-index:10;pointer-events:none}
-.ctrl{position:absolute;pointer-events:auto;border:2px solid #ffffff35;box-shadow:0 6px 18px #0008;color:white;font-weight:900}
-#left{left:max(18px,env(safe-area-inset-left));bottom:max(24px,env(safe-area-inset-bottom));width:150px;height:150px;border-radius:50%;background:#253345dd}
-#left .lbtn{position:absolute;width:62px;height:62px;border-radius:50%;background:#52657bdd;font-size:28px}
-#turnL{left:8px;top:44px}#turnR{right:8px;top:44px}
-#right{right:max(18px,env(safe-area-inset-right));bottom:max(24px,env(safe-area-inset-bottom));width:185px;height:220px}
-.pedal{position:absolute;width:82px;height:105px;border-radius:18px;background:#247c4ddd;font-size:20px}
-#go{right:0;bottom:0}#back{left:0;bottom:0;background:#b34a43dd}
-.small{width:70px;height:60px;border-radius:16px;background:#b58a25dd;font-size:14px}
-#boost{right:2px;top:0;background:#b34b9ddd}#hand{left:0;top:0;background:#526070dd}
-#repair{right:50%;transform:translateX(50%);bottom:250px;width:92px;height:58px;border-radius:18px;background:#2586aadd}
-#speed{font-size:20px}.bar{width:120px;height:8px;background:#333;border-radius:9px;overflow:hidden}.fill{height:100%;width:100%;background:#e85d2a}
-#lobbyList{max-height:190px;overflow:auto}.player{padding:9px;background:#1b2632;border-radius:10px;margin:5px 0}
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Tactical Faction Warfare - NBLJOHN GAME</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #05050a;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        #canvas-container {
+            width: 100vw;
+            height: 100vh;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+        }
+
+        /* 10-Second Loading Intro Overlay */
+        #loading-screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, #101026 0%, #05050f 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            color: #fff;
+            transition: opacity 0.6s ease;
+        }
+
+        #loading-screen h1 {
+            font-size: 56px;
+            letter-spacing: 6px;
+            color: #ff3b30;
+            margin-bottom: 20px;
+            text-shadow: 0 0 15px rgba(255, 59, 48, 0.6);
+            font-weight: 900;
+        }
+
+        .bar-container {
+            width: 350px;
+            height: 8px;
+            background: #1a1a24;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 15px;
+            border: 1px solid #333;
+        }
+
+        .bar-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #ff3b30, #ff7b00);
+            box-shadow: 0 0 12px #ff3b30;
+        }
+
+        /* Interactive Setup Menu Panels */
+        .menu-panel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(5, 5, 12, 0.9);
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 80;
+            color: #fff;
+        }
+
+        .menu-title {
+            font-size: 38px;
+            margin-bottom: 30px;
+            letter-spacing: 2px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.8);
+        }
+
+        .menu-options {
+            display: flex;
+            gap: 25px;
+        }
+
+        .menu-btn {
+            padding: 15px 40px;
+            font-size: 22px;
+            font-weight: bold;
+            color: white;
+            background: #1c1d24;
+            border: 2px solid #444;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+        }
+
+        .menu-btn:hover {
+            transform: scale(1.05);
+            border-color: #ff3b30;
+            box-shadow: 0 0 15px rgba(255, 59, 48, 0.4);
+        }
+
+        #btn-allies:hover { border-color: #2ed573; box-shadow: 0 0 15px rgba(46, 213, 115, 0.4); }
+        #btn-axis:hover { border-color: #ff4757; box-shadow: 0 0 15px rgba(255, 71, 87, 0.4); }
+
+
+        /* Top pause button */
+        #top-pause-btn {
+            position: absolute;
+            top: 14px;
+            right: 18px;
+            left: auto;
+            transform: none;
+            z-index: 120;
+            display: none;
+            padding: 9px 18px;
+            border: 2px solid rgba(255,255,255,.35);
+            border-radius: 10px;
+            background: rgba(10,10,18,.82);
+            color: #fff;
+            font-size: 16px;
+            font-weight: 800;
+            letter-spacing: 1px;
+            cursor: pointer;
+            box-shadow: 0 4px 16px rgba(0,0,0,.45);
+            backdrop-filter: blur(6px);
+        }
+        #top-pause-btn:active { transform: scale(.96); }
+
+        /* Device selector + mobile controls */
+        #device-menu .menu-options { flex-direction:column; }
+        #mobile-controls { position:absolute; inset:0; z-index:30; display:none; pointer-events:none; }
+        #joystick { position:absolute; left:24px; bottom:28px; width:130px; height:130px; border:2px solid rgba(255,255,255,.35); border-radius:50%; background:rgba(10,10,20,.35); pointer-events:auto; touch-action:none; }
+        #joystick-knob { position:absolute; left:40px; top:40px; width:46px; height:46px; border-radius:50%; background:rgba(255,255,255,.65); }
+        #mobile-fire { position:absolute; right:28px; bottom:42px; width:92px; height:92px; border-radius:50%; border:2px solid rgba(255,255,255,.5); background:rgba(190,30,30,.7); color:white; font-weight:900; font-size:18px; pointer-events:auto; touch-action:none; }
+        #mobile-pause { position:absolute; right:25px; top:18px; width:64px; height:48px; border-radius:10px; border:2px solid rgba(255,255,255,.4); background:rgba(10,10,18,.8); color:#fff; font-size:22px; pointer-events:auto; }
+        #mobile-label { position:absolute; left:50%; bottom:18px; transform:translateX(-50%); color:#fff; font-size:12px; opacity:.65; }
+
+        #customize-btn{position:absolute;top:72px;right:18px;z-index:120;display:none;padding:9px 14px;border:2px solid rgba(255,255,255,.3);border-radius:10px;background:rgba(10,10,18,.82);color:#fff;font-weight:800;pointer-events:auto}
+        #customize-menu{position:absolute;top:120px;right:18px;z-index:125;display:none;width:220px;padding:14px;border-radius:12px;background:rgba(10,10,18,.94);border:1px solid rgba(255,255,255,.25);color:#fff}
+        #customize-menu button{width:100%;margin:5px 0;padding:9px;border:0;border-radius:8px;font-weight:800;cursor:pointer}
+        #switch-multi-btn{position:absolute;top:120px;right:18px;z-index:120;display:none;padding:9px 14px;border:2px solid rgba(255,255,255,.3);border-radius:10px;background:rgba(10,10,18,.82);color:#fff;font-weight:800;pointer-events:auto;cursor:pointer}
+
+        /* HUD Overlay Elements */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 10;
+            display: none;
+        }
+
+        .hud-card {
+            position: absolute;
+            background: rgba(10, 10, 20, 0.65);
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: 1px solid rgba(255,255,255,0.1);
+            color: white;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+
+        #perf-stats {
+            top: 20px;
+            left: 20px;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            color: #00ffcc;
+        }
+
+        #score-board {
+            top: 20px;
+            left: 20px;
+            right: auto;
+            text-align: left;
+        }
+        #score-text { font-size: 24px; font-weight: bold; color: #ffcc00; }
+        #kill-text { font-size: 14px; color: #bbb; margin-top: 2px; }
+
+        #faction-badge {
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 20px;
+            font-weight: bold;
+            letter-spacing: 2px;
+            padding: 8px 30px;
+            border-radius: 0 0 10px 10px;
+            border-top: none;
+        }
+
+        #ammo-card {
+            bottom: 20px;
+            left: 20px;
+            font-size: 24px;
+            font-weight: bold;
+        }
+
+        /* On phones, keep ammo directly above the movement controller. */
+        @media (max-width: 800px) {
+            #ammo-card {
+                left: 24px;
+                bottom: 174px;
+                padding: 8px 14px;
+                font-size: 20px;
+            }
+            #score-board {
+                top: 18px;
+                left: 18px;
+            }
+            #top-pause-btn {
+                top: 14px;
+                right: 14px;
+            }
+        }
+
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 14px;
+            height: 14px;
+            transform: translate(-50%, -50%);
+        }
+        #crosshair::before, #crosshair::after {
+            content: '';
+            position: absolute;
+            background: rgba(0, 255, 200, 0.7);
+        }
+        #crosshair::before { top: 6px; left: -3px; width: 20px; height: 2px; }
+        #crosshair::after { top: -3px; left: 6px; width: 2px; height: 20px; }
+
+        /* Pause Control Window screen styles */
+        #pause-screen {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.65);
+            backdrop-filter: blur(8px);
+            z-index: 90;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+        }
+
+        #pause-screen h2 {
+            font-size: 48px;
+            color: #ffcc00;
+            margin-bottom: 5px;
+            letter-spacing: 3px;
+        }
+        #pause-screen p {
+            font-size: 16px;
+            color: #aaa;
+            margin-bottom: 25px;
+        }
+
+        #selection-wait { display:none; position:absolute; inset:0; z-index:85; background:rgba(0,0,0,.72); color:#fff; align-items:center; justify-content:center; text-align:center; }
+        #selection-wait .box { padding:28px; border:2px solid #ffcc00; border-radius:14px; background:rgba(12,12,25,.94); }
+    
+        #multiplayer-menu { z-index: 40; }
+        #server-panel { display:none; margin-top:10px; width:min(92vw,520px); }
+        #server-panel input { width:100%; box-sizing:border-box; padding:14px; margin:6px 0; border-radius:10px; border:1px solid #555; background:#111; color:#fff; font-size:16px; }
+        #server-status { margin:8px 0; color:#9ff; font-weight:700; min-height:22px; }
+        #server-code { font-size:24px; letter-spacing:4px; padding:10px; border:1px dashed #777; border-radius:10px; background:#111a; word-break:break-all; }
+        #chat-box { display:none; position:fixed; right:18px; bottom:18px; width:min(330px,calc(100vw - 36px)); z-index:50; background:rgba(5,8,12,.94); border:1px solid #5f6b77; border-radius:14px; padding:10px; color:#fff; box-shadow:0 8px 30px #0008; }
+        #chat-messages { height:150px; overflow:auto; font-size:13px; padding:5px; margin-bottom:7px; background:#0008; border-radius:8px; }
+        .chat-line { margin:4px 0; }
+        #chat-row { display:flex; gap:6px; }
+        #chat-input { flex:1; min-width:0; padding:10px; border-radius:8px; border:1px solid #555; background:#171b20; color:#fff; }
+        #chat-send, #chat-toggle { padding:10px 12px; border-radius:8px; border:1px solid #667; background:#202832; color:#fff; font-weight:800; }
+        #chat-toggle { display:none; position:fixed; right:18px; bottom:18px; z-index:51; }
+        #online-card { display:none; position:fixed; top:82px; right:18px; z-index:45; font-size:13px; }
+        @media(max-width:800px){ #chat-box{bottom:78px;right:10px;width:calc(100vw - 20px)} #chat-toggle{right:10px;bottom:10px} #online-card{top:74px;right:10px} }
+
+        #players-top-panel{display:none;position:fixed;top:18px;left:50%;transform:translateX(-50%);z-index:80;min-width:260px;max-width:90vw;background:rgba(5,8,12,.94);border:1px solid #687784;border-radius:12px;padding:10px 14px;color:#fff;box-shadow:0 8px 28px #0009;font-size:14px;text-align:left}
+        #players-top-panel .pt-title{font-weight:900;text-align:center;margin-bottom:6px}
+        .pt-row{display:flex;justify-content:space-between;gap:24px;padding:3px 0}.pt-you{font-weight:800}.pt-player{font-weight:700}
+
+        #player-manager-toggle{
+            display:none; position:fixed; top:18px; left:50%; transform:translateX(-50%);
+            z-index:70; padding:11px 18px; border:1px solid #667; border-radius:10px;
+            background:rgba(20,25,32,.96); color:#fff; font-weight:900; cursor:pointer;
+        }
+        #player-manager{
+            display:none; position:fixed; top:70px; left:50%; transform:translateX(-50%);
+            z-index:71; width:min(92vw,420px); max-height:65vh; overflow:auto;
+            background:rgba(7,10,15,.97); border:1px solid #667; border-radius:16px;
+            padding:14px; color:#fff; box-shadow:0 14px 45px #000b;
+        }
+        #player-manager h3{margin:0 0 10px;text-align:center}
+        .pm-player{
+            display:flex; align-items:center; justify-content:space-between; gap:10px;
+            padding:11px 12px; margin:7px 0; border-radius:10px;
+            background:#171d25; border:1px solid #303944; cursor:pointer;
+        }
+        .pm-player:hover{background:#202936}
+        .pm-name{font-weight:800}
+        .pm-role{font-size:12px;opacity:.7}
+        #pm-action{
+            display:none; margin-top:10px; padding-top:10px; border-top:1px solid #303944;
+        }
+        #pm-kick{
+            width:100%; padding:11px; border:1px solid #a55; border-radius:9px;
+            background:#5a2222; color:#fff; font-weight:900; cursor:pointer;
+        }
+        #pm-back{
+            width:100%; margin-top:7px; padding:9px; border:1px solid #555; border-radius:9px;
+            background:#202832; color:#fff; font-weight:800; cursor:pointer;
+        }
+        #pm-disband{width:100%;margin-top:7px;padding:10px;border:1px solid #b66;border-radius:9px;background:#3b1717;color:#fff;font-weight:900;cursor:pointer}
+        #pm-follow,#pm-follow-back{width:100%;margin-top:7px;padding:10px;border:1px solid #6688aa;border-radius:9px;background:#203b57;color:#fff;font-weight:900;cursor:pointer}
+        #follow-notice{display:none;position:fixed;left:50%;bottom:92px;transform:translateX(-50%);z-index:100;background:rgba(7,10,15,.97);border:1px solid #6688aa;border-radius:12px;padding:12px 14px;color:#fff;box-shadow:0 10px 35px #000b;max-width:min(90vw,380px);text-align:center}
+        #follow-notice button{margin-top:8px;padding:9px 14px;border:1px solid #6688aa;border-radius:8px;background:#203b57;color:#fff;font-weight:900;cursor:pointer}
+
+
+        #kick-countdown{
+            display:none; position:fixed; inset:0; z-index:1000;
+            align-items:center; justify-content:center; text-align:center;
+            background:rgba(0,0,0,.88); color:#fff;
+        }
+        #kick-countdown .kc-box{
+            width:min(90vw,430px); padding:28px 22px; border-radius:18px;
+            background:rgba(15,18,24,.98); border:1px solid #777;
+            box-shadow:0 15px 55px #000;
+        }
+        #kick-countdown h2{margin:0 0 10px;font-size:25px}
+        #kick-countdown p{margin:8px 0;font-size:18px}
+        #kick-number{font-size:72px;font-weight:1000;line-height:1;margin-top:12px}
+
+
+        #server-code-popup{
+            display:none; position:fixed; inset:0; z-index:900;
+            align-items:center; justify-content:center;
+            background:rgba(0,0,0,.82);
+        }
+        #server-code-popup .scp-box{
+            width:min(90vw,440px); padding:26px 22px; text-align:center;
+            background:rgba(12,16,22,.98); color:#fff; border:1px solid #667;
+            border-radius:18px; box-shadow:0 15px 55px #000;
+        }
+        #server-code-popup h2{margin:0 0 10px;font-size:24px}
+        #server-code-popup p{margin:7px 0 14px;opacity:.85}
+        #popup-server-code{
+            font-size:27px; letter-spacing:4px; font-weight:1000;
+            padding:14px; margin:12px 0 16px; border:1px dashed #888;
+            border-radius:11px; background:#05070a; word-break:break-all;
+        }
+        #popup-server-ok{
+            width:100%; padding:12px; border-radius:10px; border:1px solid #667;
+            background:#202832; color:#fff; font-weight:900; cursor:pointer;
+        }
+
+
+        #join-toast{
+            display:none; position:fixed; top:24px; left:50%; transform:translateX(-50%);
+            z-index:800; min-width:min(88vw,360px); max-width:90vw;
+            padding:13px 18px; border-radius:12px;
+            background:rgba(15,20,27,.97); color:#fff;
+            border:1px solid #687786; box-shadow:0 8px 28px #0009;
+            text-align:center; font-weight:900; pointer-events:none;
+        }
+        #join-toast.show{display:block;animation:joinToastIn .22s ease-out}
+        @keyframes joinToastIn{
+            from{opacity:0;transform:translate(-50%,-12px)}
+            to{opacity:1;transform:translate(-50%,0)}
+        }
+
+
+        .remote-player-label{
+            position:fixed; pointer-events:none; z-index:44; padding:3px 7px;
+            border-radius:7px; background:rgba(0,0,0,.65); color:#fff;
+            font-size:12px; font-weight:900; transform:translate(-50%,-100%);
+            white-space:nowrap;
+        }
+
+</style>
+    
+    <!-- NETWORK FAILSAFE LOAD SYSTEM: Checks multiple data lines to force initialization -->
+    <script>
+        function loadScript(url, callback, fallbackUrl) {
+            var script = document.createElement("script");
+            script.type = "text/javascript";
+            script.src = url;
+            script.onload = callback;
+            script.onerror = function() {
+                console.warn("Primary engine link failed, attempting engine fallback network pipeline...");
+                if (fallbackUrl) {
+                    loadScript(fallbackUrl, callback, null);
+                } else {
+                    alert("Critical Error: Web 3D drivers unavailable offline. Please check your internet connection.");
+                }
+            };
+            document.head.appendChild(script);
+        }
+    </script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+
+<style id="ping-fps-hud-style">
+#ping-fps-hud{
+  position:fixed;left:12px;top:12px;z-index:10050;
+  display:none;align-items:center;gap:8px;
+  padding:6px 9px;border-radius:8px;
+  background:rgba(10,14,18,.72);border:1px solid rgba(255,255,255,.14);
+  color:#fff;font:600 12px/1.1 Arial,sans-serif;
+  pointer-events:none;backdrop-filter:blur(4px);
+}
+#ping-fps-hud .hud-item{display:flex;align-items:center;gap:4px;white-space:nowrap}
+#ping-fps-hud .hud-icon{font-size:12px;opacity:.9}
+#ping-fps-hud .hud-sep{opacity:.35}
+</style>
+
+
+
+<style id="strong-collision-style">
+/* Collision warning / feedback is intentionally subtle. */
+#collision-block-toast{
+  position:fixed;left:50%;bottom:24px;transform:translateX(-50%);
+  z-index:12000;display:none;padding:8px 12px;border-radius:8px;
+  background:rgba(20,24,28,.9);border:1px solid rgba(255,255,255,.15);
+  color:#fff;font:700 12px Arial,sans-serif;pointer-events:none;
+}
+</style>
+
+<style id="multiplayer-button-visibility-fix">
+#single-to-multiplayer-btn{
+  display:block !important;
+  visibility:visible !important;
+  opacity:1 !important;
+  pointer-events:auto !important;
+  position:relative !important;
+  z-index:20 !important;
+}
+</style>
+
+<style id="remove-front-back-buttons">
+button#front-btn,button#back-btn,
+#front-button,#back-button,
+.front-btn,.back-btn,.front-button,.back-button,
+#front,#back,.front,.back{
+  display:none !important;
+}
+</style>
+
+<style id="multiplayer-hud-after-code">
+#ping-fps-hud{display:none !important;}
+#multiplayer-live-hud{
+  position:fixed;left:12px;top:12px;z-index:10050;
+  display:none;align-items:center;gap:8px;
+  padding:6px 9px;border-radius:8px;
+  background:rgba(10,14,18,.78);border:1px solid rgba(255,255,255,.14);
+  color:#fff;font:600 12px/1.1 Arial,sans-serif;pointer-events:none;
+  backdrop-filter:blur(4px);
+}
+#multiplayer-live-hud .m-item{display:flex;align-items:center;gap:4px;white-space:nowrap}
+#multiplayer-live-hud .m-sep{opacity:.35}
+</style>
+
+<style id="final-ping-fps-style">
+#multiplayer-live-hud{
+  position:fixed !important;
+  left:12px !important;
+  top:12px !important;
+  z-index:10050 !important;
+  display:none !important;
+  align-items:center !important;
+  gap:8px !important;
+  padding:6px 9px !important;
+  border-radius:8px !important;
+  background:rgba(10,14,18,.78) !important;
+  border:1px solid rgba(255,255,255,.14) !important;
+  color:#fff !important;
+  font:600 12px/1.1 Arial,sans-serif !important;
+  pointer-events:none !important;
+}
+</style>
+
+<style id="left-side-button-cleanup">
+#left-button,#left-side-button,#side-left-button,
+.left-side-button,.left-button,.left-control,
+#front-btn,#back-btn,#front-button,#back-button{
+  display:none !important;
+}
 </style>
 </head>
 <body>
-<canvas id="game"></canvas>
-<div id="menu" class="screen"><div class="card">
-<h1>OFFROAD X</h1><p>3D Internet Multiplayer</p>
-<div class="row"><button id="createBtn">CREATE SERVER</button><button id="joinBtn" class="secondary">JOIN SERVER</button></div>
-</div></div>
-<div id="create" class="screen hidden"><div class="card">
-<h2>Create Server</h2><input id="cName" placeholder="Your name"><input id="cRoom" placeholder="Room name"><input id="cCode" placeholder="Room code (optional)"><input id="cPass" placeholder="Password (optional)" type="password">
-<div class="row"><button id="doCreate">CREATE</button><button class="secondary back">BACK</button></div>
-</div></div>
-<div id="join" class="screen hidden"><div class="card">
-<h2>Join Server</h2><input id="jName" placeholder="Your name"><input id="jCode" placeholder="Room code"><input id="jPass" placeholder="Password (if required)" type="password">
-<div class="row"><button id="doJoin">JOIN</button><button id="refresh" class="secondary">REFRESH</button></div>
-<div id="rooms"></div><button class="secondary back">BACK</button>
-</div></div>
-<div id="lobby" class="screen hidden"><div class="card">
-<h2 id="roomTitle">Lobby</h2><p id="roomCode"></p><div id="lobbyList"></div>
-<div class="row"><button id="ready">READY</button><button id="start" class="secondary">START RACE</button></div><button id="leave" class="danger">LEAVE ROOM</button>
-</div></div>
-<div id="hud"><div id="top"><div class="pill" id="speed">0 km/h</div><div class="pill" id="count">Players: 1</div><div><div class="pill">BOOST</div><div class="bar"><div id="boostbar" class="fill"></div></div></div></div></div>
-<div id="controls" class="hidden">
-<div id="left" class="ctrl"><button id="turnL" class="lbtn">◀</button><button id="turnR" class="lbtn">▶</button></div>
-<div id="right" class="ctrl"><button id="hand" class="ctrl small">HAND<br>BRAKE</button><button id="boost" class="ctrl small">BOOST</button><button id="back" class="ctrl pedal">BACK<br>↶</button><button id="go" class="ctrl pedal">GO<br>▲</button></div>
-<button id="repair" class="ctrl">🔧 REPAIR</button>
+<div id="multiplayer-live-hud">
+  <span class="m-item">📶 <span id="live-ping">-- ms</span></span>
+  <span class="m-sep">|</span>
+  <span class="m-item">▣ <span id="live-fps">-- FPS</span></span>
 </div>
-<script src="/socket.io/socket.io.js"></script>
-<script>
-const socket=io({autoConnect:true}); let room=null,started=false,me=null,remote={};
-const $=id=>document.getElementById(id);
-function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.add("hidden")); if(id)$ (id).classList.remove("hidden")}
-function $(id){return document.getElementById(id)}
-$("createBtn").onclick=()=>show("create");$("joinBtn").onclick=()=>{show("join");socket.emit("getRooms")};
-document.querySelectorAll(".back").forEach(b=>b.onclick=()=>show("menu"));
-$("refresh").onclick=()=>socket.emit("getRooms");
-function esc(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function roomHTML(list){$("rooms").innerHTML=list.length?list.map(r=>`<div class="room"><span><b>${esc(r.name)}</b><br><small>${r.code} · ${r.count}/12 ${r.locked?"🔒":""}</small></span><button onclick="quickJoin('${r.code}')">JOIN</button></div>`).join(""):"<p>No servers yet.</p>"}
-window.quickJoin=code=>{$("jCode").value=code;$("doJoin").click()};
-$("doCreate").onclick=()=>socket.emit("createRoom",{name:$("cName").value,roomName:$("cRoom").value,code:$("cCode").value,password:$("cPass").value},res=>res.ok?null:alert(res.error));
-$("doJoin").onclick=()=>socket.emit("joinRoom",{name:$("jName").value,code:$("jCode").value,password:$("jPass").value},res=>{if(!res.ok)alert(res.error)});
-socket.on("rooms",roomHTML);
-socket.on("lobby",r=>{room=r;show("lobby");$("roomTitle").textContent=r.name;$("roomCode").textContent="Room code: "+r.code;
-$("count").textContent="Players: "+r.players.length;$("lobbyList").innerHTML=r.players.map(p=>`<div class="player">${p.host?"👑 ":""}${esc(p.name)} ${p.ready?"✅":"⏳"}</div>`).join("");
-$("start").style.display=r.hostId===socket.id?"block":"none";});
-$("ready").onclick=()=>socket.emit("toggleReady");$("start").onclick=()=>socket.emit("startRace");
-$("leave").onclick=()=>{socket.emit("leaveRoom");room=null;show("menu");$("controls").classList.add("hidden")};
-socket.on("notice",alert);socket.on("raceStarted",()=>{started=true;show(null);$("controls").classList.remove("hidden");startGame()});
-socket.on("playerState",p=>remote[p.id]=p);
-socket.on("disconnect",()=>{if(started)alert("Disconnected from server")});
+<div id="collision-block-toast">🚧 Blocked by an obstacle</div>
+<div class="dt-section">
+      <div class="dt-label">What time of day?</div>
+      <div class="dt-buttons">
+        <button type="button" data-time="morning" onclick="dtPickTime('morning')">🌅 Morning</button>
+        <button type="button" data-time="afternoon" onclick="dtPickTime('afternoon')">☀️ Afternoon</button>
+        <button type="button" data-time="evening" onclick="dtPickTime('evening')">🌙 Evening</button>
+      </div>
+    </div>
+
+    <button type="button" class="dt-continue" id="dt-continue" onclick="dtFinish()" disabled>CONTINUE</button>
+  </div>
+</div>
+
+<div id="ping-fps-hud" aria-hidden="true">
+  <span class="hud-item"><span class="hud-icon">◉</span><span id="hud-ping">-- ms</span></span>
+  <span class="hud-sep">|</span>
+  <span class="hud-item"><span class="hud-icon">▣</span><span id="hud-fps">-- FPS</span></span>
+</div>
+
+
+    <!-- 1. Intro Loading Screen -->
+    <div id="loading-screen">
+        <h1>NBLJOHN GAME</h1>
+        <div class="bar-container">
+            <div class="bar-fill" id="load-bar"></div>
+        </div>
+        <p id="load-label">Booting Engine Configurations... 0%</p>
+    </div>
+
+    <!-- 2. Device Selector -->
+    <div id="device-menu" class="menu-panel">
+        <h2 class="menu-title">WHAT ARE YOU USING?</h2>
+        <div class="menu-options">
+            <button class="menu-btn" onclick="selectDevice('phone')">📱 PHONE</button>
+            <button class="menu-btn" onclick="selectDevice('laptop')">💻 LAPTOP</button>
+        </div>
+    </div>
+
+    <!-- 3. Game Mode Selector -->
+    <div id="mode-menu" class="menu-panel">
+        <h2 class="menu-title">CHOOSE GAME MODE</h2>
+        <div class="menu-options">
+            <button class="menu-btn" onclick="selectMode('single')">🎮 NORMAL PLAY</button>
+            <button class="menu-btn" onclick="selectMode('multi')">🌐 MULTIPLAYER</button>
+        </div>
+    </div>
+
+    <!-- 4. Multiplayer Server Lobby -->
+    <div id="multiplayer-menu" class="menu-panel">
+        <h2 class="menu-title">🌐 MULTIPLAYER</h2>
+        <div class="menu-options">
+            <button class="menu-btn" onclick="createServer()">➕ CREATE SERVER</button>
+            <button class="menu-btn" onclick="showJoinServer()">🔗 JOIN SERVER</button>
+            <div id="server-panel">
+                <input id="player-name" maxlength="18" placeholder="Your player name">
+                <input id="server-code-input" maxlength="80" placeholder="Server code / host ID">
+                <div id="server-status">Create a server or enter a server code.</div>
+                <div id="server-code" style="display:none"></div>
+                <button id="join-go" class="menu-btn" style="display:none" onclick="joinServer()">JOIN NOW</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Team Faction Selector -->
+    <div id="faction-menu" class="menu-panel">
+        <h2 class="menu-title">CHOOSE YOUR FACTION</h2>
+        <div class="menu-options">
+            <div style="width:100%;font-weight:900;letter-spacing:2px;margin-bottom:6px;">🟢 ALLIES</div>
+            <button id="btn-allies" class="menu-btn" onclick="selectFaction('ALLIES')">🪖 ALLIES — HUMAN PLAYER</button>
+
+            <div style="width:100%;font-weight:900;letter-spacing:2px;margin:12px 0 6px;">🔴 AXIS</div>
+            <button id="btn-axis" class="menu-btn" onclick="selectFaction('AXIS')">🪖 AXIS — HUMAN PLAYER</button>
+            <button id="single-to-multiplayer-btn" class="menu-btn" onclick="switchToMultiplayer()">🌐 MULTIPLAYER</button>
+
+        </div>
+    </div>
+
+    <!-- 3. Environment Light Selector -->
+    <div id="time-menu" class="menu-panel">
+        <h2 class="menu-title">SELECT OPERATION TIME</h2>
+        <div class="menu-options">
+            <button class="menu-btn" onclick="selectTime('morning')">MORNING</button>
+            <button class="menu-btn" onclick="selectTime('afternoon')">AFTERNOON</button>
+            <button class="menu-btn" onclick="selectTime('night')">NIGHT</button>
+        </div>
+    </div>
+
+    <!-- 4. Game Pause Active State Window screen UI -->
+    <div id="pause-screen">
+        <h2>GAME PAUSED</h2>
+        <p>Press [ P ] again or click the button below to resume deployment execution</p>
+        <button class="menu-btn" onclick="togglePause(false)">RESUME GAME</button>
+    </div>
+
+    <button id="top-pause-btn" type="button" onclick="togglePause()" aria-label="Pause game">⏸ PAUSE</button>
+    <button id="customize-btn" type="button" onclick="toggleCustomize()">👕 CUSTOMIZE</button>
+    <button id="switch-multi-btn" type="button" onclick="switchToMultiplayer()">🌐 MULTIPLAYER</button>
+    <div id="customize-menu">
+      <b>PLAYER CUSTOMIZATION</b>
+      <button onclick="changeClothes()">👕 CHANGE CLOTHES</button>
+      <button onclick="toggleTank()">🛡️ CHANGE TO TANK</button>
+      <button onclick="toggleCustomize()">CLOSE</button>
+    </div>
+
+    <!-- 5. Active Match Heads Up Display Panel -->
+    <div id="hud">
+        <div id="crosshair"></div>
+        <div id="perf-stats" class="hud-card">
+            FPS: <span id="val-fps">60</span><br>
+            PING: <span id="val-ping">24</span> ms
+        </div>
+        <div id="faction-badge" class="hud-card">TEAM</div>
+        <div id="score-board" class="hud-card">
+            <div id="score-text">SCORE: <span id="val-score">0</span></div>
+            <div id="kill-text">KILLS: <span id="val-kills">0</span></div>
+        </div>
+        <div id="ammo-card" class="hud-card">AMMO: <span id="val-ammo">30</span> / ∞</div>
+    </div>
+
+    <div id="mobile-controls">
+        <div id="joystick"><div id="joystick-knob"></div></div>
+        <button id="mobile-fire">FIRE</button>
+        <button id="mobile-pause" onclick="togglePause()">⏸</button><div id="camera-controls"></div>
+        <div id="mobile-label">MOVE • FIRE</div>
+    </div>
+
+    <div id="online-card" class="hud-card">👥 ONLINE: <span id="online-count">1</span></div>
+    
+    <button id="player-manager-toggle" type="button">👥 PLAYERS</button>
+    <div id="player-manager">
+        <h3 id="pm-title">Players</h3>
+        <div id="pm-list"></div>
+        <div id="pm-action">
+            <div id="pm-selected" style="font-weight:900;margin-bottom:8px;text-align:center"></div>
+            <button id="pm-follow" type="button">FOLLOW PLAYER</button>
+            <button id="pm-follow-back" type="button" style="display:none">FOLLOW BACK</button>
+            <button id="pm-kick" type="button">KICK PLAYER</button>
+            <button id="pm-back" type="button">BACK TO PLAYER LIST</button>
+            <button id="pm-disband" type="button">DISBAND SERVER</button>
+        </div>
+    </div>
+    <div id="follow-notice"><span id="follow-notice-text"></span><br><button id="follow-notice-back">FOLLOW BACK</button></div>
+
+    <button id="chat-toggle" type="button">💬 CHAT</button>
+    <div id="chat-box">
+        <div style="font-weight:900;margin-bottom:7px">💬 TEAM CHAT</div>
+        <div id="chat-messages" aria-live="polite"></div>
+        <div id="chat-row"><input id="chat-input" maxlength="120" placeholder="Type a message..."><button id="chat-send" type="button">SEND</button></div>
+    </div>
+
+
+    <div id="players-top-panel">
+        <div class="pt-title">👥 MULTIPLAYER PLAYERS</div>
+        <div class="pt-row pt-you"><span id="pt-you-name">Player</span></div>
+        <div id="pt-players-list"></div>
+    </div>
+
+    <!-- 3D Graphics Mount Point Container -->
+    
+    
+    
+    <div id="join-toast"></div>
+    <div id="server-code-popup">
+        <div class="scp-box">
+            <h2>Server Created</h2>
+            <p>Give this server code to the player who wants to join you:</p>
+            <input id="popup-server-code-input" type="text" readonly
+                   style="width:100%;box-sizing:border-box;padding:14px;border-radius:10px;border:1px solid #555;background:#111;color:#fff;font-size:20px;letter-spacing:2px;text-align:center">
+            <button id="popup-server-ok" type="button" style="margin-top:14px">OK</button>
+        </div>
+    </div>
+
+    <div id="kick-countdown">
+        <div class="kc-box">
+            <h2>You have been kicked by the host</h2>
+            <p>You will be removed from the server in:</p>
+            <div id="kick-number">4</div>
+        </div>
+    </div>
+
+    <div id="canvas-container"></div>
+
+    <script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+    <script>
+        // --- Fixed, self-contained game engine ---
+        let scene, camera, renderer, clock;
+        let isPaused = true, isLocked = false;
+        let selectedFaction = '', selectedTime = '', selectedDevice = '';
+        let mobileMove = {x:0,y:0};
+        let playerGroup, playerWeapon, playerParts={legs:[],boots:[],arms:[],torso:null,head:null,helmet:null};
+        let playerIsTank=false, clothesIndex=0, walkTime=0, cameraBack=true;
+        let score = 0, kills = 0, ammo = 30, playerHp = 100;
+        let enemies = [], allies = [], projectiles = [], allyShots = [];
+        let allyTeamColor = 0x49613e;
+        let gameMode = 'single', peer = null, hostConn = null, peerConns = [], isHost = false;
+        let playerName = 'Player', serverHostName = '', remotePlayers = new Map();
+        let serverStarted = false;
+        const remoteVisuals = new Map();
+        const keys = {};
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        let lastShot = 0;
+
+        function $(id){ return document.getElementById(id); }
+
+        // Prevent the old startup from getting stuck: the game is ready immediately.
+        function bootGame(){
+            // Keep the simulation paused while the setup prompts are open.
+            isPaused = true;
+            if (typeof THREE === 'undefined') {
+                alert('3D engine could not load. Please open this game while connected to the internet.');
+                return;
+            }
+            init3D();
+            showMenu('device-menu');
+        }
+
+        function showMenu(id){
+            document.querySelectorAll('.menu-panel').forEach(x => x.style.display='none');
+            if(id) $(id).style.display='flex';
+        }
+
+        function selectDevice(device){
+            selectedDevice = device;
+            $('device-menu').style.display='none';
+            const mobile = device === 'phone';
+            $('mobile-controls').style.display = mobile ? 'block' : 'none';
+            if($('camera-controls')) $('camera-controls').style.display = mobile ? 'flex' : 'none';
+            showMenu('mode-menu');
+        }
+
+        function selectMode(mode){
+            gameMode = mode;
+            if(mode === 'single'){
+                showMenu('faction-menu');
+                return;
+            }
+            removeAIForMultiplayer();
+            showMenu('multiplayer-menu');
+            $('server-panel').style.display='block';
+            $('join-go').style.display='none';
+            $('server-code').style.display='none';
+            $('server-status').textContent='Create a server or choose JOIN SERVER.';
+        }
+
+        function makePlayerName(){
+            const input=$('player-name');
+            playerName=(input&&input.value.trim())||('Player'+Math.floor(100+Math.random()*900));
+            if(input) input.value=playerName;
+            updatePlayersTopPanel();
+        }
+        function addChat(text, name='SYSTEM'){
+            const box=$('chat-messages'); if(!box) return;
+            const line=document.createElement('div'); line.className='chat-line';
+            line.textContent=`${name}: ${text}`; box.appendChild(line); box.scrollTop=box.scrollHeight;
+        }
+        // Internet multiplayer transport: WebSocket relay (works across different networks).
+        // The browser connects to a small relay server; game packets are then forwarded to players in the same room.
+        let networkSocket=null;
+        let networkRoom='';
+        let networkId='';
+        let networkHostId='';
+        const networkPeers=new Map();
+        const WS_RELAY_URL = window.NBLJOHN_RELAY_URL || 'wss://YOUR-RENDER-APP.onrender.com';
+
+        function relaySend(data,target=null){
+            if(!networkSocket || networkSocket.readyState!==WebSocket.OPEN) return false;
+            try{
+                networkSocket.send(JSON.stringify(target ? {type:'target',target,data} : {type:'broadcast',data}));
+                return true;
+            }catch(e){ return false; }
+        }
+        function makeVirtualConn(id){
+            if(networkPeers.has(id)) return networkPeers.get(id);
+            const c={peer:id,open:true,send:(data)=>relaySend(data,id),close:()=>{}};
+            networkPeers.set(id,c);
+            return c;
+        }
+        function broadcast(data, except=null){
+            // The relay server broadcasts once; this function is kept for compatibility with the game code.
+            if(except && except.peer) return relaySend(data);
+            return relaySend(data);
+        }
+        function connectInternet(role){
+            makePlayerName();
+            networkRoom=role==='host' ? randomRoomCode() : ($('server-code-input').value||'').trim().toUpperCase();
+            if(!networkRoom){ $('server-status').textContent='Please enter the server code.'; return; }
+            if(!/^wss?:\/\//i.test(WS_RELAY_URL)){
+                $('server-status').textContent='Internet relay is not configured yet. Deploy the included server and set its URL.';
+                return;
+            }
+            isHost=(role==='host'); serverStarted=true;
+            try{ if(networkSocket) networkSocket.close(); }catch(e){}
+            networkPeers.clear();
+            $('server-status').textContent=isHost?'Connecting to internet server...':'Joining internet server...';
+            let url=WS_RELAY_URL + (WS_RELAY_URL.includes('?')?'&':'?') + 'room='+encodeURIComponent(networkRoom)+'&name='+encodeURIComponent(playerName)+'&host='+(isHost?'1':'0');
+            networkSocket=new WebSocket(url);
+            hostConn=isHost?null:networkSocket;
+            networkSocket.onopen=()=>{
+                networkId='';
+                $('server-status').textContent=isHost?'Server ready! Share this code with the other player.':'Connected. Waiting for the host...';
+                if(isHost){
+                    removeAIForMultiplayer();
+                    $('server-code').style.display='block'; $('server-code').textContent=networkRoom;
+                    closeAllMenusForGame(); showServerCodePopup(networkRoom);
+                    $('chat-toggle').style.display='block'; $('online-card').style.display='block';
+                    if($('player-manager-toggle')) $('player-manager-toggle').style.display='block';
+                    addChat('Internet server created. Share the code with the other player.'); updatePlayersTopPanel();
+                }
+            };
+            networkSocket.onmessage=(ev)=>{
+                let packet; try{ packet=JSON.parse(ev.data); }catch(e){ return; }
+                if(packet.kind==='welcome'){
+                    networkId=packet.id||'';
+                    networkHostId=(packet.players||[]).find(x=>x.host)?.id||'';
+                    if(packet.players) packet.players.forEach(x=>{ if(x.id!==networkId) makeVirtualConn(x.id); });
+                    if(!isHost && networkHostId) hostConn={peer:networkHostId,open:true,send:(data)=>relaySend(data,networkHostId),close:()=>{}};
+                    updateOnline();
+                    if(!isHost) startMultiplayerAfterLobby();
+                    return;
+                }
+                if(packet.kind==='player-joined'){
+                    const c=makeVirtualConn(packet.player.id);
+                    if(isHost){
+                        showJoinToast(packet.player.name||'Player');
+                        addChat(`${packet.player.name||'Player'} joined the server.`);
+                        c.send({type:'hello',hostName:playerName});
+                    }
+                    updateOnline(); return;
+                }
+                if(packet.kind==='player-left'){
+                    const id=packet.id; const old=remotePlayers.get(id);
+                    if(old&&old.mesh) scene.remove(old.mesh);
+                    remotePlayers.delete(id); remoteVisuals.delete(id); networkPeers.delete(id);
+                    addChat(`${packet.name||'Player'} has gone in the server.`);
+                    updateOnline(); return;
+                }
+                if(packet.kind==='target'){ handleNetwork(packet.data,makeVirtualConn(packet.from)); return; }
+                if(packet.kind==='broadcast'){ handleNetwork(packet.data,makeVirtualConn(packet.from)); return; }
+                if(packet.kind==='room-closed'){
+                    serverStarted=false; isHost=false; networkRoom=''; networkId=''; networkHostId='';
+                    try{networkSocket.close();}catch(e){} networkSocket=null; hostConn=null; networkPeers.clear(); remotePlayers.clear();
+                    if(typeof remoteVisuals!=='undefined'){ remoteVisuals.forEach(obj=>scene.remove(obj)); remoteVisuals.clear(); }
+                    closePlayerManager(); if($('online-card')) $('online-card').style.display='none'; if($('chat-toggle')) $('chat-toggle').style.display='none'; if($('player-manager-toggle')) $('player-manager-toggle').style.display='none';
+                    showMenu('mode-menu'); isPaused=true; $('server-status').textContent=packet.message||'The server was disbanded.'; return;
+                }
+                if(packet.kind==='error'){ $('server-status').textContent=packet.message||'Server error.'; }
+            };
+            networkSocket.onclose=()=>{
+                Object.values(remoteVisuals||{}).forEach(()=>{});
+                networkPeers.forEach((c,id)=>{ const old=remotePlayers.get(id); if(old&&old.mesh) scene.remove(old.mesh); });
+                networkPeers.clear(); remotePlayers.clear();
+                updateOnline();
+                if(gameMode==='multi') $('server-status').textContent='Internet server disconnected.';
+            };
+            networkSocket.onerror=()=>{ $('server-status').textContent='Could not connect to the internet multiplayer server.'; };
+        }
+        function randomRoomCode(){
+            const chars='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let out='';
+            for(let i=0;i<6;i++) out+=chars[Math.floor(Math.random()*chars.length)];
+            return out;
+        }
+        function setupConn(conn){
+            // Compatibility wrapper for old game code. WebSocket messages are routed above.
+            if(conn) conn.open=true;
+        }
+        function updatePlayersTopPanel(){
+            const panel=$('players-top-panel'); if(!panel) return;
+            $('pt-you-name').textContent=playerName||'Player';
+            const list=$('pt-players-list'); list.innerHTML='';
+            remotePlayers.forEach((d,id)=>{
+                const row=document.createElement('div'); row.className='pt-row pt-player';
+                const label=document.createElement('span'); label.textContent='Player:';
+                const name=document.createElement('span'); name.textContent=d.name||'Player';
+                row.append(label,name); list.appendChild(row);
+            });
+            panel.style.display=(gameMode==='multi' && serverStarted && (isHost || remotePlayers.size>0))?'block':'none';
+        }
+
+
+        let pmSelectedPeer = null;
+        const followingPlayers = new Set();
+        const pendingFollowBack = new Map();
+
+        function showPlayerManager(){
+            if(gameMode!=='multi' || !serverStarted || !isHost) return;
+            const m=$('player-manager');
+            if(!m) return;
+            m.style.display='block';
+            $('pm-action').style.display='none';
+            pmSelectedPeer=null;
+            renderPlayerManager();
+        }
+        function closePlayerManager(){
+            const m=$('player-manager');
+            if(m) m.style.display='none';
+            pmSelectedPeer=null;
+        }
+        function renderPlayerManager(){
+            const list=$('pm-list');
+            if(!list) return;
+            list.innerHTML='';
+            const you=document.createElement('div');
+            you.className='pm-player';
+            you.innerHTML='<span class="pm-name">You: '+escapeHtml(playerName||'Player')+'</span><span class="pm-role">'+(isHost?'HOST':'PLAYER')+'</span>';
+            list.appendChild(you);
+
+            remotePlayers.forEach((d,id)=>{
+                const row=document.createElement('div');
+                row.className='pm-player';
+                const dotColor=d.faction==='AXIS'?'#b44':'#49613e';
+                row.innerHTML='<span class="pm-name"><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:'+dotColor+';margin-right:7px"></span>Player: '+escapeHtml(d.name||'Player')+'</span><span class="pm-role">'+(d.tank?'TANK':'ONLINE')+'</span>';
+                row.onclick=()=>selectManagedPlayer(id,d.name||'Player');
+                list.appendChild(row);
+            });
+            if(!remotePlayers.size){
+                const empty=document.createElement('div');
+                empty.style.cssText='text-align:center;opacity:.7;padding:12px';
+                empty.textContent='No other players have joined yet.';
+                list.appendChild(empty);
+            }
+        }
+        function selectManagedPlayer(id,name){
+            pmSelectedPeer=id;
+            $('pm-list').style.display='none';
+            $('pm-action').style.display='block';
+            $('pm-selected').textContent='Player: '+name;
+            const followBtn=$('pm-follow'), backBtn=$('pm-follow-back');
+            if(followBtn){
+                followBtn.style.display='block';
+                followBtn.textContent=followingPlayers.has(id)?'UNFOLLOW PLAYER':'FOLLOW PLAYER';
+            }
+            if(backBtn) backBtn.style.display=pendingFollowBack.has(id)?'block':'none';
+        }
+        function sendFollowRequest(id){
+            if(!id || id===networkId) return;
+            const d=remotePlayers.get(id); const name=d&&d.name||'Player';
+            if(followingPlayers.has(id)){
+                followingPlayers.delete(id);
+                addChat('unfollowed '+name+'.',playerName);
+                relaySend({type:'follow-update',name:playerName,following:false},id);
+                selectManagedPlayer(id,name); return;
+            }
+            followingPlayers.add(id);
+            addChat('follow u',playerName);
+            relaySend({type:'follow-request',name:playerName},id);
+            selectManagedPlayer(id,name);
+        }
+        function sendFollowBack(id){
+            if(!id) return;
+            const d=remotePlayers.get(id); const name=d&&d.name||pendingFollowBack.get(id)||'Player';
+            followingPlayers.add(id);
+            pendingFollowBack.delete(id);
+            addChat('follow u',playerName);
+            relaySend({type:'follow-back',name:playerName},id);
+            if($('follow-notice')) $('follow-notice').style.display='none';
+            if(pmSelectedPeer===id) selectManagedPlayer(id,name);
+        }
+        function showFollowNotice(id,name){
+            pendingFollowBack.set(id,name||'Player');
+            const box=$('follow-notice'); const txt=$('follow-notice-text');
+            if(txt) txt.textContent=(name||'Player')+' followed you';
+            if(box) box.style.display='block';
+            if($('follow-notice-back')) $('follow-notice-back').onclick=()=>sendFollowBack(id);
+            addChat('follow u',name||'Player');
+        }
+        function returnToPlayerList(){
+            pmSelectedPeer=null;
+            $('pm-action').style.display='none';
+            $('pm-list').style.display='block';
+            renderPlayerManager();
+        }
+        function kickSelectedPlayer(){
+            if(!isHost || !pmSelectedPeer) return;
+            const conn=networkPeers.get(pmSelectedPeer) || peerConns.find(c=>c && c.peer===pmSelectedPeer);
+            if(conn && conn.open){
+                try{ relaySend({type:'kicked'},pmSelectedPeer); }catch(e){}
+                setTimeout(()=>{ try{ conn.close(); }catch(e){} },4500);
+            }
+            remotePlayers.delete(pmSelectedPeer);
+            const old=remoteVisuals && remoteVisuals.get(pmSelectedPeer);
+            if(old){ scene.remove(old); remoteVisuals.delete(pmSelectedPeer); }
+            peerConns=peerConns.filter(c=>c!==conn);
+            updateOnline();
+            returnToPlayerList();
+        }
+        function escapeHtml(v){
+            return String(v).replace(/[&<>"']/g,ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+        }
+
+        function updateOnline(){
+            const n=1+remotePlayers.size;
+            if($('online-count')) $('online-count').textContent=n;
+            updatePlayersTopPanel();
+        }
+        function createServer(){
+            $('server-code-input').style.display='none'; $('join-go').style.display='none';
+            connectInternet('host');
+        }
+        function showJoinServer(){
+            isHost=false; serverStarted=true; makePlayerName();
+            $('join-go').style.display='block'; $('server-code-input').style.display='block';
+            $('server-status').textContent='Enter the internet server code from the host.';
+            $('server-code').style.display='none';
+        }
+        function joinServer(){
+            connectInternet('join');
+        }
+        function startMultiplayerAfterLobby(){
+            $('multiplayer-menu').style.display='none'; $('chat-toggle').style.display='block'; $('online-card').style.display='block'; if(isHost && $('player-manager-toggle')) $('player-manager-toggle').style.display='block';
+            showMenu('faction-menu');
+        }
+        function handleNetwork(data,conn){
+            if(!data||!data.type) return;
+            if(data.type==='kicked'){
+                startKickCountdown();
+                return;
+            } else if(data.type==='follow-request'){
+                showFollowNotice(conn&&conn.peer, data.name||'Player');
+                return;
+            } else if(data.type==='follow-back'){
+                const id=conn&&conn.peer; if(id) followingPlayers.add(id);
+                addChat('followed you back',data.name||'Player');
+                return;
+            } else if(data.type==='follow-update'){
+                addChat((data.name||'Player')+(data.following?' is following you.':' unfollowed you.'),'SYSTEM');
+                return;
+            } else if(data.type==='hit'){
+                playerHp=Math.max(0,playerHp-(Number(data.damage)||25));
+                if(playerHp<=0){ playerHp=100; if(playerGroup) playerGroup.position.set(0,0,0); addChat('You were eliminated and respawned.','SYSTEM'); }
+                updateHud();
+            } else if(data.type==='hello'){
+                serverHostName=data.hostName||'Host';
+                addChat(`Connected to server created by ${serverHostName}.`);
+                if(conn) conn.send({type:'hello-client',name:playerName});
+                startMultiplayerAfterLobby();
+            } else if(data.type==='hello-client' && isHost){
+                showJoinToast(data.name||'Player');
+                addChat(`${data.name||'Player'} joined the server.`);
+                updatePlayersTopPanel();
+                conn.send({type:'host-info',hostName:playerName});
+                broadcast({type:'chat',name:'SYSTEM',text:`${data.name||'Player'} joined the server.`},conn);
+                startMultiplayerAfterLobby();
+            } else if(data.type==='host-info'){
+                serverHostName=data.hostName||'Host'; addChat(`Server created by ${serverHostName}.`); startMultiplayerAfterLobby();
+            } else if(data.type==='chat'){
+                addChat(data.text||'',data.name||'Player');
+                if(isHost && !networkSocket) broadcast(data,conn);
+            } else if(data.type==='spawn'){
+                if(playerGroup && !isHost){
+                    playerGroup.position.set(data.x||0,0,data.z||0);
+                    playerGroup.userData.networkSpawned=true;
+                }
+            } else if(data.type==='state'){
+                // Never create a network copy of our own local player.
+                if(peer && conn.peer === peer.id) return;
+                const old=remotePlayers.get(conn.peer);
+                remotePlayers.set(conn.peer,{
+                    ...(old||{}),
+                    name:data.name||'Player',
+                    x:Number(data.x)||0,y:Number(data.y)||0,z:Number(data.z)||0,
+                    ry:Number(data.ry)||0,faction:data.faction||'ALLIES',score:data.score||0,tank:!!data.tank,hp:Number.isFinite(data.hp)?data.hp:100
+                });
+                syncRemoteVisual(conn.peer); updateOnline();
+                if(isHost && !networkSocket) broadcast(data,conn);
+            } else if(data.type==='shot'){
+                spawnRemoteShot(data); if(isHost && !networkSocket) broadcast(data,conn);
+            }
+        }
+        function syncRemoteVisual(id){
+            const d=remotePlayers.get(id);
+            if(!d||!scene) return;
+
+            // Exactly one 3D object is allowed for each remote PeerJS id.
+            let obj=d.mesh || remoteVisuals.get(id);
+            if(!obj){
+                obj=buildHuman(d.faction,false);
+                obj.userData.remotePeerId=id;
+                remoteVisuals.set(id,obj);
+                d.mesh=obj;
+                scene.add(obj);
+            } else {
+                d.mesh=obj;
+            }
+
+            obj.position.set(d.x,d.y,d.z);
+            obj.rotation.y=d.ry;
+            obj.userData.remoteName=d.name;
+            obj.userData.remoteFaction=d.faction;
+            setRemoteAppearance(obj,d);
+        }
+        function spawnRemoteShot(data){
+            if(!scene||!data) return;
+            const p=new THREE.Mesh(new THREE.SphereGeometry(.1,7,7),new THREE.MeshBasicMaterial({color:0xff8844}));
+            p.position.set(data.x||0,data.y||1.2,data.z||0); scene.add(p);
+            const dir=new THREE.Vector3(data.dx||0,data.dy||0,data.dz||-1).normalize(); projectiles.push({mesh:p,vel:dir.multiplyScalar(45),life:1.5,remote:true});
+        }
+        function sendNetworkState(){
+            if(gameMode!=='multi'||!serverStarted||!playerGroup) return;
+            const msg={type:'state',name:playerName,x:playerGroup.position.x,y:playerGroup.position.y,z:playerGroup.position.z,ry:playerGroup.rotation.y,faction:selectedFaction,score:score,tank:!!playerIsTank,hp:playerHp};
+            if(networkSocket) relaySend(msg); else if(isHost) broadcast(msg); else if(hostConn&&hostConn.open) hostConn.send(msg);
+        }
+        function sendNetworkShot(start,dir){
+            if(gameMode!=='multi'||!serverStarted) return;
+            const msg={type:'shot',x:start.x,y:start.y,z:start.z,dx:dir.x,dy:dir.y,dz:dir.z};
+            if(networkSocket) relaySend(msg); else if(isHost) broadcast(msg); else if(hostConn&&hostConn.open) hostConn.send(msg);
+        }
+        function sendChat(){
+            const input=$('chat-input'); const text=(input.value||'').trim(); if(!text) return;
+            const msg={type:'chat',name:playerName,text}; addChat(text,playerName); input.value='';
+            if(networkSocket) relaySend(msg); else if(isHost) broadcast(msg); else if(hostConn&&hostConn.open) hostConn.send(msg);
+        }
+        function selectFaction(faction){
+            selectedFaction = faction;
+            $('faction-menu').style.display='none';
+            showMenu('time-menu');
+        }
+
+        function selectTime(time){
+            selectedTime = time;
+            applyTimeMode(time);
+            $('time-menu').style.display='none';
+            $('hud').style.display='block'; if($('switch-multi-btn')) $('switch-multi-btn').style.display=(gameMode==='single'?'block':'none'); if($('top-pause-btn')) $('top-pause-btn').style.display='block'; if($('customize-btn')) $('customize-btn').style.display='block';
+            $('faction-badge').textContent = (selectedFaction==='ALLIES'?'🙂 ALLIES TEAM':'🙂 AXIS TEAM') + ' • ' + selectedTime.toUpperCase();
+            resetMatch();
+            // All setup prompts are finished now, so start the game.
+            isPaused=false;
+            if(gameMode==='multi'){ $('chat-toggle').style.display='block'; $('online-card').style.display='block'; if(isHost && $('player-manager-toggle')) $('player-manager-toggle').style.display='block'; }
+            if(renderer && renderer.domElement.requestPointerLock) renderer.domElement.requestPointerLock();
+        }
+
+        function applyTimeMode(time){
+            if(!scene) return;
+            const settings = {
+                morning:   {sky:0x87ceeb, fog:0xbfd8e8, ground:0x6d5a42, hemi:1.7, sun:2.5},
+                afternoon: {sky:0x5fa9d6, fog:0x9fc5d9, ground:0x765f45, hemi:1.5, sun:2.2},
+                night:     {sky:0x050814, fog:0x10182a, ground:0x242936, hemi:0.35, sun:0.45}
+            }[time];
+            if(!settings) return;
+            scene.background = new THREE.Color(settings.sky);
+            scene.fog = new THREE.Fog(settings.fog, time==='night'?22:35, time==='night'?125:180);
+            if(scene.userData.hemi) scene.userData.hemi.intensity=settings.hemi;
+            if(scene.userData.sun) scene.userData.sun.intensity=settings.sun;
+            const ground=scene.userData.ground;
+            if(ground) ground.material.color.setHex(settings.ground);
+        }
+
+        function init3D(){
+            scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x20242b, 35, 180);
+            camera = new THREE.PerspectiveCamera(70, innerWidth/innerHeight, .1, 300);
+            camera.position.set(0, 5, 12);
+
+            renderer = new THREE.WebGLRenderer({antialias:true});
+            renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+            renderer.setSize(innerWidth, innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            $('canvas-container').appendChild(renderer.domElement);
+
+            clock = new THREE.Clock();
+            addLights();
+            addWorld();
+            createPlayer();
+            createEnemies(8);
+            createAllies(3);
+
+            addEventListener('resize', onResize);
+            addEventListener('keydown', e => { keys[e.code]=true; if(e.code==='KeyP') togglePause(); });
+            addEventListener('keyup', e => keys[e.code]=false);
+            renderer.domElement.addEventListener('click', shoot);
+            addEventListener('mousedown', e => { if(e.button===0) shoot(); });
+            addEventListener('touchstart', e => { if(e.touches.length && e.target===renderer.domElement) shoot(); }, {passive:true});
+            setupMobileControls();
+            const cf=$('cam-front'), cb=$('cam-back'), cc=$('camera-controls');
+            if(cf&&cb){cf.onclick=()=>{cameraBack=false}; cb.onclick=()=>{cameraBack=true};}
+            if(cc) cc.style.display = selectedDevice==='phone' ? 'flex' : 'none';
+            animate();
+        }
+
+        function addLights(){
+            const hemi = new THREE.HemisphereLight(0xbfd7ff, 0x443322, 1.5);
+            scene.add(hemi); scene.userData.hemi = hemi;
+            const sun = new THREE.DirectionalLight(0xffffff, 2.2);
+            sun.position.set(25,40,15); sun.castShadow=true;
+            sun.shadow.mapSize.set(1024,1024);
+            scene.add(sun); scene.userData.sun = sun;
+        }
+
+        function addWorld(){
+            const ground = new THREE.Mesh(
+                new THREE.PlaneGeometry(220,220),
+                new THREE.MeshStandardMaterial({color:0x6d5a42, roughness:1})
+            );
+            ground.rotation.x=-Math.PI/2; ground.receiveShadow=true; scene.add(ground); scene.userData.ground=ground;
+            const grid = new THREE.GridHelper(220,44,0x40392f,0x51483b); scene.add(grid);
+            for(let i=0;i<55;i++){
+                const h=1+Math.random()*5;
+                const rock=new THREE.Mesh(new THREE.DodecahedronGeometry(.7+Math.random()*1.8),new THREE.MeshStandardMaterial({color:0x4d463d,roughness:1}));
+                rock.position.set((Math.random()-.5)*180,h/2,(Math.random()-.5)*180); rock.scale.y=h; rock.castShadow=true; scene.add(rock);
+            }
+        }
+
+        function buildHuman(faction, isPlayer=false){
+            const g=new THREE.Group();
+            const isAxis=faction==='AXIS';
+            const uniforms=isAxis?[0x3d403b,0x4b3828,0x283b55]:[0x49613e,0x365c45,0x5d4f36];
+            const uniform=uniforms[clothesIndex%uniforms.length];
+            const skin=0xc98b62, dark=0x202020;
+            const legsMat=new THREE.MeshStandardMaterial({color:uniform,roughness:.9});
+            const bodyMat=new THREE.MeshStandardMaterial({color:uniform,roughness:.85});
+            const skinMat=new THREE.MeshStandardMaterial({color:skin,roughness:.8});
+            const darkMat=new THREE.MeshStandardMaterial({color:dark,roughness:.7});
+            const parts={legs:[],boots:[],arms:[],torso:null,head:null,helmet:null};
+            [-.28,.28].forEach(x=>{
+                const leg=new THREE.Mesh(new THREE.BoxGeometry(.38,.95,.38),legsMat); leg.position.set(x,.48,0); leg.castShadow=true; g.add(leg); parts.legs.push(leg);
+                const boot=new THREE.Mesh(new THREE.BoxGeometry(.43,.25,.62),darkMat); boot.position.set(x,.08,-.1); boot.castShadow=true; g.add(boot); parts.boots.push(boot);
+            });
+            const torso=new THREE.Mesh(new THREE.BoxGeometry(1.05,1.25,.55),bodyMat); torso.position.y=1.35; torso.castShadow=true; g.add(torso); parts.torso=torso;
+            const head=new THREE.Mesh(new THREE.SphereGeometry(.34,16,12),skinMat); head.position.y=2.25; head.castShadow=true; g.add(head); parts.head=head;
+            const helmet=new THREE.Mesh(new THREE.SphereGeometry(.39,16,10,0,Math.PI*2,0,Math.PI/2),darkMat); helmet.position.y=2.43; helmet.castShadow=true; g.add(helmet); parts.helmet=helmet;
+            [-1,1].forEach(side=>{ const arm=new THREE.Mesh(new THREE.BoxGeometry(.28,1.0,.28),bodyMat); arm.position.set(side*.7,1.35,0); arm.rotation.z=side*.12; arm.castShadow=true; g.add(arm); parts.arms.push(arm); });
+            const rifle=new THREE.Mesh(new THREE.BoxGeometry(.16,.16,1.65),darkMat); rifle.position.set(0,1.42,-.72); rifle.rotation.x=-.08; rifle.castShadow=true; g.add(rifle);
+            const muzzle=new THREE.Mesh(new THREE.CylinderGeometry(.06,.06,.35,8),darkMat); muzzle.rotation.x=Math.PI/2; muzzle.position.set(0,1.42,-1.62); g.add(muzzle);
+            g.userData.parts=parts; g.userData.rifle=rifle; g.userData.muzzle=muzzle; g.userData.isHuman=true;
+            return g;
+        }
+
+        function createPlayer(){
+            playerGroup=buildHuman(selectedFaction,true); playerParts=playerGroup.userData.parts; playerWeapon=playerGroup.userData.rifle;
+            playerGroup.position.set(0,0,0); scene.add(playerGroup);
+        }
+
+        function createAlly(){
+            const g=buildHuman(selectedFaction,true);
+            g.scale.setScalar(.98);
+            g.userData.isAlly=true;
+            return g;
+        }
+
+        function createAllies(n){
+            allies.forEach(a=>scene.remove(a.mesh)); allies=[];
+            for(let i=0;i<n;i++){
+                const g=createAlly();
+                const a=i/n*Math.PI*2;
+                g.position.set(Math.cos(a)*7,0,Math.sin(a)*7+6);
+                scene.add(g); allies.push({mesh:g,hp:2,speed:1.5+Math.random()*.4,fireTimer:Math.random()*.8,walkTime:0});
+            }
+        }
+
+        function createHumanEnemy(){
+            const enemyFaction=selectedFaction==='ALLIES'?'AXIS':'ALLIES';
+            return buildHuman(enemyFaction,false);
+        }
+
+        function createEnemies(n){
+            enemies.forEach(e=>scene.remove(e.mesh)); enemies=[];
+            for(let i=0;i<n;i++){
+                const g=createHumanEnemy();
+                const x=(Math.random()-.5)*100, z=(Math.random()-.5)*100;
+                if(Math.hypot(x,z)<25){ i--; continue; }
+                g.position.set(x,0,z); scene.add(g);
+                enemies.push({mesh:g,hp:2,speed:1.2+Math.random()*.8});
+            }
+        }
+
+        function resetMatch(){
+            // Do not clear the setup pause here. The game only starts after the
+            // final setup choice (time of day) is completed.
+            score=0; kills=0; ammo=30; walkTime=0; playerIsTank=false; playerHp=100;
+            if(!playerGroup) createPlayer();
+            if(isHost || !playerGroup.userData.networkSpawned){
+                playerGroup.position.set(0,0,0);
+            }
+            playerGroup.rotation.y=0;
+            updateHud();
+            if(gameMode==='multi') setTimeout(sendNetworkState,120);
+        }
+
+        function shoot(){
+            if(isPaused || !playerGroup || performance.now()-lastShot<180) return;
+            lastShot=performance.now();
+            if(ammo<=0) ammo=30;
+            ammo--;
+            const start=playerGroup.localToWorld(new THREE.Vector3(0,1.42,-1.85));
+            const p=new THREE.Mesh(new THREE.SphereGeometry(.12,8,8),new THREE.MeshBasicMaterial({color:0xffcc33}));
+            p.position.copy(start); scene.add(p);
+            const target=new THREE.Vector3(0,1.42,-1).applyQuaternion(playerGroup.quaternion).normalize();
+            const shotDir=target.clone();
+            projectiles.push({mesh:p,vel:target.multiplyScalar(45),life:2});
+            sendNetworkShot(start,shotDir);
+            updateHud();
+        }
+
+        function update(dt){
+            if(isPaused || !playerGroup) return;
+            const forward=Math.max(0, mobileMove.y*-1) || ((keys.KeyW||keys.ArrowUp)?1:0);
+            const backward=Math.max(0, mobileMove.y) || ((keys.KeyS||keys.ArrowDown)?1:0);
+            const turn=mobileMove.x || ((keys.KeyD||keys.ArrowRight?1:0)-(keys.KeyA||keys.ArrowLeft?1:0));
+            playerGroup.rotation.y -= turn*2.2*dt;
+            const speed=forward?14:backward?-8:0;
+            playerGroup.translateZ(-speed*dt);
+            const moving=Math.abs(speed)>0.1;
+            if(moving){ walkTime+=dt*10; const swing=Math.sin(walkTime)*0.55; playerParts.legs[0].rotation.x=swing; playerParts.legs[1].rotation.x=-swing; playerParts.arms[0].rotation.x=-swing*.45; playerParts.arms[1].rotation.x=swing*.45; }
+            else { playerParts.legs.forEach(x=>x.rotation.x*=.75); playerParts.arms.forEach(x=>x.rotation.x*=.75); }
+            playerGroup.position.x=THREE.MathUtils.clamp(playerGroup.position.x,-105,105);
+            playerGroup.position.z=THREE.MathUtils.clamp(playerGroup.position.z,-105,105);
+
+            const camOffset = cameraBack ? new THREE.Vector3(0,5.2,10) : new THREE.Vector3(0,3.0,-7);
+            const camPos=camOffset.applyQuaternion(playerGroup.quaternion).add(playerGroup.position);
+            camera.position.lerp(camPos,.12);
+            const look=playerGroup.position.clone(); look.y+=1.2; camera.lookAt(look);
+
+            for(let i=projectiles.length-1;i>=0;i--){
+                const p=projectiles[i]; p.mesh.position.addScaledVector(p.vel,dt); p.life-=dt;
+                let hit=false;
+                if(!p.remote){
+                    for(let j=enemies.length-1;j>=0;j--){
+                        const e=enemies[j]; if(p.mesh.position.distanceTo(e.mesh.position)<1.8){
+                            e.hp--; hit=true; if(e.hp<=0){score+=100;kills++; respawnEnemy(e); } break;
+                        }
+                    }
+                    if(!hit && gameMode==='multi'){
+                        for(const [id,d] of remotePlayers){
+                            if(id===networkId || !d.mesh) continue;
+                            if(p.mesh.position.distanceTo(d.mesh.position)<1.7){
+                                hit=true; relaySend({type:'hit',damage:25},id); break;
+                            }
+                        }
+                    }
+                } else if(p.mesh.position.distanceTo(playerGroup.position.clone().add(new THREE.Vector3(0,1,0)))<1.8){
+                    hit=true; playerHp=Math.max(0,playerHp-25); updateHud();
+                    if(playerHp<=0){ playerHp=100; playerGroup.position.set(0,0,0); }
+                }
+                if(hit||p.life<=0){scene.remove(p.mesh); projectiles.splice(i,1);}
+            }
+            for(const a of allies){
+                let target=null, best=Infinity;
+                if(gameMode!=='multi') for(const e of enemies){ const d=a.mesh.position.distanceTo(e.mesh.position); if(d<best){best=d;target=e;} }
+                if(target){
+                    const to=target.mesh.position.clone().sub(a.mesh.position); to.y=0;
+                    if(to.length()>8){to.normalize(); a.mesh.position.addScaledVector(to,a.speed*dt);}
+                    a.mesh.lookAt(target.mesh.position.x,a.mesh.position.y,target.mesh.position.z);
+                    a.walkTime+=dt*9; const sw=Math.sin(a.walkTime)*.5; const parts=a.mesh.userData.parts;
+                    if(parts){parts.legs[0].rotation.x=sw;parts.legs[1].rotation.x=-sw;parts.arms[0].rotation.x=-sw*.4;parts.arms[1].rotation.x=sw*.4;}
+                    a.fireTimer-=dt;
+                    if(best<38 && a.fireTimer<=0){
+                        const start=a.mesh.localToWorld(new THREE.Vector3(0,1.42,-1.85));
+                        const dir=target.mesh.position.clone().add(new THREE.Vector3(0,1.1,0)).sub(start).normalize();
+                        const p=new THREE.Mesh(new THREE.SphereGeometry(.1,7,7),new THREE.MeshBasicMaterial({color:0x9dff66}));
+                        p.position.copy(start);scene.add(p); allyShots.push({mesh:p,vel:dir.multiplyScalar(34),life:1.8}); a.fireTimer=1.0+Math.random()*.8;
+                    }
+                }
+            }
+            for(let i=allyShots.length-1;i>=0;i--){
+                const p=allyShots[i]; p.mesh.position.addScaledVector(p.vel,dt); p.life-=dt; let hit=false;
+                for(const e of enemies){if(p.mesh.position.distanceTo(e.mesh.position)<1.7){e.hp--;hit=true;if(e.hp<=0){score+=100;kills++;respawnEnemy(e);}break;}}
+                if(hit||p.life<=0){scene.remove(p.mesh);allyShots.splice(i,1);}
+            }
+            for(const e of enemies){
+                const to=playerGroup.position.clone().sub(e.mesh.position); to.y=0;
+                const d=to.length();
+                if(d>3){to.normalize(); e.mesh.position.addScaledVector(to,e.speed*dt); e.mesh.lookAt(playerGroup.position.x,e.mesh.position.y,playerGroup.position.z);}
+                if(d>3 && e.mesh.userData.parts){ e.mesh.userData.walkTime=(e.mesh.userData.walkTime||0)+dt*9; const sw=Math.sin(e.mesh.userData.walkTime)*.5; e.mesh.userData.parts.legs[0].rotation.x=sw; e.mesh.userData.parts.legs[1].rotation.x=-sw; e.mesh.userData.parts.arms[0].rotation.x=-sw*.4; e.mesh.userData.parts.arms[1].rotation.x=sw*.4; }
+            }
+            updateHud();
+            if(gameMode==='multi'){
+                if(!update.lastNetSend || performance.now()-update.lastNetSend>100){
+                    update.lastNetSend=performance.now();
+                    sendNetworkState();
+                }
+            }
+        }
+
+        function respawnEnemy(e){
+            e.hp=2; e.mesh.position.set((Math.random()-.5)*100,0,(Math.random()-.5)*100); }
+
+        function updateHud(){
+            if($('val-score')) $('val-score').textContent=score;
+            if($('val-kills')) $('val-kills').textContent=kills;
+            if($('val-ammo')) $('val-ammo').textContent=ammo;
+        }
+
+        function toggleCustomize(){ const m=$('customize-menu'); if(m) m.style.display=m.style.display==='block'?'none':'block'; }
+        function changeClothes(){
+            clothesIndex=(clothesIndex+1)%3;
+            if(playerGroup){ const fresh=buildHuman(selectedFaction,true); fresh.position.copy(playerGroup.position); fresh.rotation.copy(playerGroup.rotation); scene.remove(playerGroup); playerGroup=fresh; playerParts=fresh.userData.parts; playerWeapon=fresh.userData.rifle; scene.add(playerGroup); }
+            toggleCustomize();
+        }
+        function toggleTank(){
+            if(!playerGroup) return;
+            playerIsTank=!playerIsTank;
+            if(playerIsTank){
+                playerGroup.traverse(o=>{if(o.isMesh)o.visible=false;});
+                const tank=new THREE.Group();
+                const hull=new THREE.Mesh(new THREE.BoxGeometry(2.8,.8,4.2),new THREE.MeshStandardMaterial({color:selectedFaction==='AXIS'?0x3d403b:0x49613e,roughness:.8})); hull.position.y=.65; tank.add(hull);
+                const turret=new THREE.Mesh(new THREE.CylinderGeometry(.75,.85,.45,16),new THREE.MeshStandardMaterial({color:0x30352f,roughness:.8})); turret.position.y=1.15; tank.add(turret);
+                const barrel=new THREE.Mesh(new THREE.BoxGeometry(.22,.22,2.5),new THREE.MeshStandardMaterial({color:0x202020,roughness:.7})); barrel.position.set(0,1.15,-1.65); tank.add(barrel);
+                [-1,1].forEach(x=>[-1,1].forEach(z=>{const w=new THREE.Mesh(new THREE.CylinderGeometry(.38,.38,.35,12),new THREE.MeshStandardMaterial({color:0x151515,roughness:1})); w.rotation.z=Math.PI/2; w.position.set(x*1.35,.38,z*1.35); tank.add(w);}));
+                tank.name='PLAYER_TANK'; playerGroup.add(tank); playerGroup.userData.tank=tank;
+            } else { const tank=playerGroup.userData.tank; if(tank){playerGroup.remove(tank); tank.traverse(o=>o.geometry?.dispose?.());} playerGroup.traverse(o=>{if(o.isMesh)o.visible=true;}); }
+            toggleCustomize();
+        }
+
+        function togglePause(force){
+            isPaused = typeof force==='boolean' ? force : !isPaused;
+            $('pause-screen').style.display=isPaused?'flex':'none'; if($('top-pause-btn')) $('top-pause-btn').textContent=isPaused?'▶ RESUME':'⏸ PAUSE';
+        }
+
+        function setupMobileControls(){
+            const joy=$('joystick'), knob=$('joystick-knob'), fire=$('mobile-fire');
+            if(!joy) return;
+            let active=false;
+            function setFromTouch(t){
+                const r=joy.getBoundingClientRect();
+                let x=t.clientX-(r.left+r.width/2), y=t.clientY-(r.top+r.height/2);
+                const max=42, len=Math.hypot(x,y); if(len>max){x=x/len*max;y=y/len*max;}
+                knob.style.transform=`translate(${x}px,${y}px)`; mobileMove.x=x/max; mobileMove.y=y/max;
+            }
+            joy.addEventListener('touchstart',e=>{active=true;setFromTouch(e.touches[0]);e.preventDefault();},{passive:false});
+            joy.addEventListener('touchmove',e=>{if(active)setFromTouch(e.touches[0]);e.preventDefault();},{passive:false});
+            joy.addEventListener('touchend',e=>{active=false;knob.style.transform='translate(0,0)';mobileMove.x=0;mobileMove.y=0;e.preventDefault();},{passive:false});
+            fire.addEventListener('touchstart',e=>{shoot();e.preventDefault();},{passive:false});
+        }
+
+        $('chat-send').addEventListener('click',sendChat);
+        $('chat-input').addEventListener('keydown',e=>{if(e.key==='Enter')sendChat();});
+        $('chat-toggle').addEventListener('click',()=>{ const box=$('chat-box'); box.style.display=box.style.display==='block'?'none':'block'; });
+
+        function onResize(){
+            if(!camera||!renderer) return;
+            camera.aspect=innerWidth/innerHeight; camera.updateProjectionMatrix(); renderer.setSize(innerWidth,innerHeight);
+        }
+
+        function animate(){
+            requestAnimationFrame(animate);
+            const dt=Math.min(clock.getDelta(),.05);
+            update(dt);
+            if(renderer) renderer.render(scene,camera);
+        }
+
+        // Make the loading screen finish quickly and reliably.
+        window.addEventListener('load',()=>{
+            const ls=$('loading-screen'), bar=$('load-bar'), label=$('load-label');
+            let p=0; const timer=setInterval(()=>{
+                p+=25; if(bar) bar.style.width=p+'%'; if(label) label.textContent='Booting Engine Configurations... '+Math.min(p,100)+'%';
+                if(p>=100){clearInterval(timer); if(ls){ls.style.opacity='0';setTimeout(()=>ls.style.display='none',500);} bootGame();}
+            },80);
+        });
+    
+        document.addEventListener('click',e=>{
+            const toggle=$('player-manager-toggle'), manager=$('player-manager');
+            if(toggle && e.target===toggle){ showPlayerManager(); return; }
+            if(manager && manager.style.display==='block' && !manager.contains(e.target) && e.target!==toggle){
+                closePlayerManager();
+            }
+        });
+        if($('pm-kick')) $('pm-kick').onclick=kickSelectedPlayer;
+        if($('pm-back')) $('pm-back').onclick=returnToPlayerList;
+        if($('pm-follow')) $('pm-follow').onclick=()=>{ if(pmSelectedPeer){ const d=remotePlayers.get(pmSelectedPeer); sendFollowRequest(pmSelectedPeer,d&&d.name||'Player'); } };
+        if($('pm-follow-back')) $('pm-follow-back').onclick=()=>{ if(pmSelectedPeer) sendFollowBack(pmSelectedPeer); };
+        if($('pm-disband')) $('pm-disband').onclick=disbandServer;
+
+        function disbandServer(){
+            if(!isHost || !serverStarted) return;
+            if(!confirm('Disband this server and return to single player?')) return;
+            relaySend({type:'close-room'});
+            serverStarted=false; isHost=false; networkRoom=''; networkId=''; networkHostId='';
+            try{ if(networkSocket) networkSocket.close(); }catch(e){}
+            networkSocket=null; hostConn=null; networkPeers.clear(); remotePlayers.clear();
+            if(typeof remoteVisuals!=='undefined'){ remoteVisuals.forEach(obj=>scene.remove(obj)); remoteVisuals.clear(); }
+            closePlayerManager(); if($('online-card')) $('online-card').style.display='none'; if($('chat-toggle')) $('chat-toggle').style.display='none'; if($('player-manager-toggle')) $('player-manager-toggle').style.display='none';
+            gameMode='single'; isPaused=true; showMenu('faction-menu');
+            if($('server-status')) $('server-status').textContent='Server disbanded. Single player mode.';
+        }
+
+        let kickCountdownTimer = null;
+        function startKickCountdown(){
+            if(kickCountdownTimer) clearInterval(kickCountdownTimer);
+            const overlay=$('kick-countdown'), num=$('kick-number');
+            if(!overlay || !num) return;
+            overlay.style.display='flex';
+            let count=4;
+            num.textContent=count;
+            addChat('You have been kicked by the host.','SYSTEM');
+            kickCountdownTimer=setInterval(()=>{
+                count--;
+                num.textContent=count;
+                if(count<=0){
+                    clearInterval(kickCountdownTimer);
+                    kickCountdownTimer=null;
+                    serverStarted=false;
+                    if(hostConn) try{hostConn.close();}catch(e){}
+                    hostConn=null;
+                    remotePlayers.clear();
+                    if(typeof remoteVisuals!=='undefined') {
+                        remoteVisuals.forEach(obj=>scene.remove(obj));
+                        remoteVisuals.clear();
+                    }
+                    peerConns=[];
+                    overlay.style.display='none';
+                    closePlayerManager();
+                    if($('online-card')) $('online-card').style.display='none';
+                    if($('chat-toggle')) $('chat-toggle').style.display='none';
+                    if($('player-manager-toggle')) $('player-manager-toggle').style.display='none';
+                    showMenu('multiplayer-menu');
+                    if($('server-status')) $('server-status').textContent='You were kicked by the host.';
+                }
+            },1000);
+        }
+
+
+        function closeAllMenusForGame(){
+            document.querySelectorAll('.menu-panel').forEach(x=>x.style.display='none');
+            isPaused=false;
+        }
+        function showServerCodePopup(code){
+            const p=$('server-code-popup');
+            const name=$('popup-player-name');
+            const codeInput=$('popup-server-code-input');
+            if(name) name.value=playerName||'Player';
+            if(codeInput) codeInput.value=code||'';
+            if(p) p.style.display='flex';
+        }
+        function closeServerCodePopup(){
+            const p=$('server-code-popup');
+            if(p) p.style.display='none';
+            closeAllMenusForGame(); updatePlayersTopPanel();
+        }
+
+
+        if($('popup-server-ok')) $('popup-server-ok').onclick=closeServerCodePopup;
+        if($('server-code-popup')) $('server-code-popup').addEventListener('click',e=>{
+            if(e.target===$('server-code-popup')) closeServerCodePopup();
+        });
+
+
+        function removeAIForMultiplayer(){
+            // Remove all AI enemies.
+            if(Array.isArray(enemies)){
+                enemies.forEach(e=>{ if(e && e.mesh) scene.remove(e.mesh); });
+                enemies.length=0;
+            }
+            // Remove all AI allies.
+            if(Array.isArray(allies)){
+                allies.forEach(a=>{ if(a && a.mesh) scene.remove(a.mesh); });
+                allies.length=0;
+            }
+            // Remove AI projectiles.
+            if(Array.isArray(allyShots)){
+                allyShots.forEach(p=>{ if(p && p.mesh) scene.remove(p.mesh); });
+                allyShots.length=0;
+            }
+            if(Array.isArray(projectiles)){
+                projectiles.forEach(p=>{ if(p && p.mesh) scene.remove(p.mesh); });
+                projectiles.length=0;
+            }
+        }
+
+
+        let joinToastTimer = null;
+        function showJoinToast(name){
+            const toast=$('join-toast');
+            if(!toast) return;
+            toast.textContent=(name||'Player')+' has joined the server';
+            toast.classList.remove('show');
+            void toast.offsetWidth;
+            toast.classList.add('show');
+            if(joinToastTimer) clearTimeout(joinToastTimer);
+            joinToastTimer=setTimeout(()=>{
+                toast.classList.remove('show');
+            },3000);
+        }
+
+
+        function switchToMultiplayer(){
+            gameMode='multi'; isPaused=true;
+            if(typeof removeAIForMultiplayer==='function') removeAIForMultiplayer();
+            if($('hud')) $('hud').style.display='none'; if($('top-pause-btn')) $('top-pause-btn').style.display='none'; if($('customize-btn')) $('customize-btn').style.display='none'; if($('switch-multi-btn')) $('switch-multi-btn').style.display='none';
+            showMenu('multiplayer-menu');
+            if($('server-panel')) $('server-panel').style.display='block';
+            if($('join-go')) $('join-go').style.display='none';
+            if($('server-code')) $('server-code').style.display='none';
+            if($('server-status')) $('server-status').textContent='Create a server or choose JOIN SERVER.';
+        }
+
+        function makeRemoteTank(obj, faction){
+            const tank=new THREE.Group();
+            const hull=new THREE.Mesh(
+                new THREE.BoxGeometry(2.8,.8,4.2),
+                new THREE.MeshStandardMaterial({
+                    color:faction==='AXIS'?0x5a2b2b:0x315f3b, roughness:.8
+                })
+            );
+            hull.position.y=.65; tank.add(hull);
+            const turret=new THREE.Mesh(
+                new THREE.CylinderGeometry(.75,.85,.45,16),
+                new THREE.MeshStandardMaterial({
+                    color:faction==='AXIS'?0x743333:0x49613e, roughness:.8
+                })
+            );
+            turret.position.y=1.15; tank.add(turret);
+            const barrel=new THREE.Mesh(
+                new THREE.BoxGeometry(.22,.22,2.5),
+                new THREE.MeshStandardMaterial({color:0x202020,roughness:.7})
+            );
+            barrel.position.set(0,1.15,-1.65); tank.add(barrel);
+            [-1,1].forEach(x=>[-1,1].forEach(z=>{
+                const w=new THREE.Mesh(
+                    new THREE.CylinderGeometry(.38,.38,.35,12),
+                    new THREE.MeshStandardMaterial({color:0x151515,roughness:1})
+                );
+                w.rotation.z=Math.PI/2;
+                w.position.set(x*1.35,.38,z*1.35);
+                tank.add(w);
+            }));
+            tank.name='REMOTE_PLAYER_TANK';
+            obj.traverse(o=>{ if(o.isMesh) o.visible=false; });
+            obj.add(tank);
+            obj.userData.remoteTank=tank;
+        }
+
+        function setRemoteAppearance(obj,d){
+            const shouldTank=!!d.tank;
+            if(shouldTank && !obj.userData.remoteTank){
+                makeRemoteTank(obj,d.faction);
+            } else if(!shouldTank && obj.userData.remoteTank){
+                const tank=obj.userData.remoteTank;
+                obj.remove(tank);
+                tank.traverse(o=>{ if(o.geometry && o.geometry.dispose) o.geometry.dispose(); });
+                obj.traverse(o=>{ if(o.isMesh) o.visible=true; });
+                delete obj.userData.remoteTank;
+            }
+            obj.userData.remoteFaction=d.faction;
+        }
+
 </script>
-<script>
-const canvas=document.getElementById("game"),ctx=canvas.getContext("2d");let W,H,car={x:0,z:0,a:0,v:0,hp:100,boost:100},keys={},running=false;
-function resize(){W=canvas.width=innerWidth;H=canvas.height=innerHeight}addEventListener("resize",resize);resize();
-function road(x,z){return Math.sin(x*.018)*80+Math.cos(z*.014)*70}
-function draw(){
- ctx.fillStyle="#6b8f4b";ctx.fillRect(0,0,W,H);
- ctx.save();ctx.translate(W/2,H/2);ctx.rotate(-car.a*.18);
- ctx.fillStyle="#8b7a58";ctx.fillRect(-W,road(car.x,car.z)*.05,W*2,220);
- for(let i=-10;i<11;i++){ctx.fillStyle=i%2?"#456638":"#587843";ctx.fillRect(i*100+((car.z*.15)%100),-300,55,600)}
- ctx.fillStyle="#333";ctx.fillRect(-22,-32,44,64);ctx.fillStyle="#e85d2a";ctx.fillRect(-17,-26,34,45);
- ctx.fillStyle="#fff";ctx.fillRect(-12,-20,24,8);
- ctx.restore();
- for(const id in remote){const p=remote[id],dx=p.x-car.x,dz=p.z-car.z; if(Math.abs(dx)<900&&Math.abs(dz)<700){let sx=W/2+dx*.5,sy=H/2+dz*.35;ctx.fillStyle="#35a7ff";ctx.fillRect(sx-12,sy-20,24,40)}}
-}
-function loop(){if(!running)return;let steer=(keys.l?-1:0)+(keys.r?1:0),th=(keys.go?1:0)+(keys.back?-1:0);
- if(keys.boost&&car.boost>0){th*=2.2;car.boost-=.8}else car.boost=Math.min(100,car.boost+.18);
- if(keys.hand)car.v*=.93; car.a+=steer*.045*(.7+Math.min(1,Math.abs(car.v)/8));car.v+=th*.18;car.v*=.985;car.x+=Math.sin(car.a)*car.v;car.z+=Math.cos(car.a)*car.v;
- if(keys.repair){car.hp=Math.min(100,car.hp+1);keys.repair=false}
- $("speed").textContent=Math.round(Math.abs(car.v)*12)+" km/h";$("boostbar").style.width=car.boost+"%";draw();
- socket.volatile.emit("state",{x:car.x,z:car.z,rot:car.a,speed:car.v});requestAnimationFrame(loop)}
-function startGame(){running=true;loop()}
-function bind(id,k){let b=$(id);const on=e=>{e.preventDefault();keys[k]=true;b.setPointerCapture?.(e.pointerId)},off=e=>{e.preventDefault();keys[k]=false};b.addEventListener("pointerdown",on);b.addEventListener("pointerup",off);b.addEventListener("pointercancel",off);b.addEventListener("pointerleave",off)}
-bind("turnL","l");bind("turnR","r");bind("go","go");bind("back","back");bind("boost","boost");bind("hand","hand");bind("repair","repair");
-addEventListener("keydown",e=>{keys[{ArrowLeft:"l",ArrowRight:"r",ArrowUp:"go",ArrowDown:"back",Shift:"boost", " ":"hand"}[e.key]]=true});
-addEventListener("keyup",e=>{keys[{ArrowLeft:"l",ArrowRight:"r",ArrowUp:"go",ArrowDown:"back",Shift:"boost", " ":"hand"}[e.key]]=false});
+
+
+<script id="ping-fps-hud-script">
+(function(){
+  let hudFps = 0, hudFrames = 0, hudLastFpsTime = performance.now();
+  let hudPing = null, hudPingPending = false, hudPingTimer = null;
+  const HUD_INTERVAL = 500;
+
+  function hudEl(id){ return document.getElementById(id); }
+
+  function updateHudVisibility(){
+    const hud = hudEl('ping-fps-hud');
+    if(!hud) return;
+    // Show during gameplay; multiplayer ping is only meaningful while connected.
+    const active = (typeof gameMode !== 'undefined' && gameMode === 'multi') ||
+                   (typeof gameState !== 'undefined' && gameState === 'playing');
+    hud.style.display = active ? 'flex' : 'none';
+  }
+
+  function updateHudText(){
+    const f = hudEl('hud-fps'), p = hudEl('hud-ping');
+    if(f) f.textContent = Math.max(0, Math.round(hudFps)) + ' FPS';
+    if(p) p.textContent = hudPing == null ? '-- ms' : Math.max(0, Math.round(hudPing)) + ' ms';
+    updateHudVisibility();
+  }
+
+  function hudFrame(now){
+    hudFrames++;
+    const elapsed = now - hudLastFpsTime;
+    if(elapsed >= HUD_INTERVAL){
+      hudFps = hudFrames * 1000 / elapsed;
+      hudFrames = 0;
+      hudLastFpsTime = now;
+      updateHudText();
+    }
+    requestAnimationFrame(hudFrame);
+  }
+  requestAnimationFrame(hudFrame);
+
+  function measurePing(conn){
+    if(!conn || !conn.open || hudPingPending) return;
+    hudPingPending = true;
+    const started = performance.now();
+    try {
+      conn.send({type:'ping-request', t: started});
+    } catch(e) {
+      hudPingPending = false;
+    }
+    setTimeout(function(){
+      if(hudPingPending && performance.now() - started >= 1800){
+        hudPingPending = false;
+        hudPing = null;
+        updateHudText();
+      }
+    }, 1900);
+  }
+
+  function startPingLoop(){
+    clearInterval(hudPingTimer);
+    hudPingTimer = setInterval(function(){
+      let conn = null;
+      try {
+        if(typeof isHost !== 'undefined' && isHost){
+          conn = (typeof peerConns !== 'undefined' && peerConns.length) ? peerConns[0] : null;
+        } else if(typeof hostConn !== 'undefined') {
+          conn = hostConn;
+        }
+      } catch(e){}
+      measurePing(conn);
+    }, 1000);
+  }
+  startPingLoop();
+
+  // Hook into the game's existing network handler without replacing it.
+  const oldHandleNetwork = window.handleNetwork;
+  window.handleNetwork = function(data, conn){
+    if(data && data.type === 'ping-request'){
+      try { conn.send({type:'ping-response', t:data.t}); } catch(e){}
+      return;
+    }
+    if(data && data.type === 'ping-response'){
+      const t = Number(data.t);
+      if(Number.isFinite(t)){
+        hudPing = performance.now() - t;
+        hudPingPending = false;
+        updateHudText();
+      }
+      return;
+    }
+    if(typeof oldHandleNetwork === 'function') return oldHandleNetwork.apply(this, arguments);
+  };
+
+  // If the game's function is declared later, retry the hook after load.
+  window.addEventListener('load', function(){
+    updateHudText();
+  });
+})();
 </script>
-</body></html>
+
+
+
+<script id="strong-collision-script">
+(function(){
+  /*
+   * Strong world collision:
+   * - Obstacles/rocks are solid for the player.
+   * - Human mode cannot walk through them.
+   * - Vehicle/tank mode cannot drive through them.
+   * - If a vehicle hits a rock/solid obstacle, it is removed ("vanishes").
+   *
+   * The game already has its own obstacle objects; this layer hooks the
+   * movement position and performs a conservative horizontal collision test.
+   */
+  const R = { player: 0.55, vehicle: 1.35, rock: 1.15 };
+
+  function dist2(ax,az,bx,bz){
+    const dx=ax-bx, dz=az-bz;
+    return dx*dx + dz*dz;
+  }
+
+  function worldObstacles(){
+    const out = [];
+    try {
+      // Common arrays used by the game.
+      const candidates = [];
+      if(Array.isArray(window.obstacles)) candidates.push.apply(candidates, window.obstacles);
+      if(Array.isArray(window.rocks)) candidates.push.apply(candidates, window.rocks);
+      if(Array.isArray(window.environmentObjects)) candidates.push.apply(candidates, window.environmentObjects);
+
+      candidates.forEach(o=>{
+        if(!o || !o.position) return;
+        out.push({obj:o, x:o.position.x, z:o.position.z, r:1.0});
+      });
+    } catch(e){}
+    return out;
+  }
+
+  function sceneSolids(){
+    const result = [];
+    try{
+      if(!window.scene || !scene.traverse) return result;
+      scene.traverse(o=>{
+        if(!o || !o.isMesh || !o.visible || !o.parent) return;
+        const n = String(o.name || '').toLowerCase();
+        // Only treat obvious world obstacle/rock objects as solids, avoiding
+        // UI/player meshes and decorative effects.
+        if(/rock|obstacle|boulder|wall|building|barrier|tree|stone/.test(n)){
+          const p = new THREE.Vector3();
+          o.getWorldPosition(p);
+          const box = new THREE.Box3().setFromObject(o);
+          const size = new THREE.Vector3();
+          box.getSize(size);
+          const rad = Math.max(.45, Math.min(3.5, Math.max(size.x,size.z)*0.5));
+          result.push({obj:o,x:p.x,z:p.z,r:rad});
+        }
+      });
+    }catch(e){}
+    return result;
+  }
+
+  function getSolids(){
+    const a = worldObstacles();
+    const b = sceneSolids();
+    // De-duplicate by object reference.
+    const seen = new Set(), all=[];
+    a.concat(b).forEach(s=>{
+      if(!s.obj || seen.has(s.obj)) return;
+      seen.add(s.obj); all.push(s);
+    });
+    return all;
+  }
+
+  function blockedAt(x,z,r){
+    for(const s of getSolids()){
+      if(dist2(x,z,s.x,s.z) < Math.pow(r+s.r,2)) return s;
+    }
+    return null;
+  }
+
+  function showBlocked(){
+    const t=document.getElementById('collision-block-toast');
+    if(!t) return;
+    t.style.display='block';
+    clearTimeout(window.__blockedToastTimer);
+    window.__blockedToastTimer=setTimeout(()=>t.style.display='none',700);
+  }
+
+  function isVehicleMode(){
+    try { return !!window.playerIsTank; } catch(e){ return false; }
+  }
+
+  function removeVehicle(){
+    try{
+      if(typeof playerGroup !== 'undefined' && playerGroup && playerGroup.userData && playerGroup.userData.tank){
+        const tank=playerGroup.userData.tank;
+        if(tank.parent) tank.parent.remove(tank);
+        playerGroup.userData.tank=null;
+      }
+      if(typeof playerIsTank !== 'undefined') playerIsTank=false;
+    }catch(e){}
+  }
+
+  // Expose helpers so the existing update loop can use the same collision rule.
+  window.__strongWorldCollision = {
+    blockedAt,
+    isVehicleMode,
+    removeVehicle,
+    showBlocked,
+    radius: R
+  };
+
+  /*
+   * Prevent the final player position from entering a solid. This is a
+   * fallback even if the game's own movement code changes the position
+   * directly. For vehicles, a rock/obstacle impact removes the vehicle.
+   */
+  let lastSafe = null;
+  function enforceCollision(){
+    try{
+      if(typeof playerGroup === 'undefined' || !playerGroup || !playerGroup.position) {
+        requestAnimationFrame(enforceCollision); return;
+      }
+
+      const x=playerGroup.position.x, z=playerGroup.position.z;
+      const vehicle=isVehicleMode();
+      const hit=blockedAt(x,z, vehicle ? R.vehicle : R.player);
+
+      if(!hit){
+        lastSafe={x,z};
+      } else {
+        if(vehicle){
+          removeVehicle();
+          showBlocked();
+          // Return the character to the last safe position after the vehicle vanishes.
+          if(lastSafe) playerGroup.position.set(lastSafe.x, playerGroup.position.y, lastSafe.z);
+        }else{
+          // Human cannot pass through the rock/obstacle.
+          if(lastSafe) playerGroup.position.set(lastSafe.x, playerGroup.position.y, lastSafe.z);
+          else playerGroup.position.set(x, playerGroup.position.y, z);
+          showBlocked();
+        }
+      }
+    }catch(e){}
+    requestAnimationFrame(enforceCollision);
+  }
+  requestAnimationFrame(enforceCollision);
+})();
+</script>
+
+
+
+<script id="final-real-ping-fps-script">
+(function(){
+  let visible = false;
+  let frames = 0;
+  let last = performance.now();
+  let fps = 0;
+  let pingTimer = null;
+  let pingPending = false;
+  let pingStarted = 0;
+
+  function el(id){ return document.getElementById(id); }
+
+  function show(){
+    const h=el('multiplayer-live-hud');
+    if(!h) return;
+    visible=true;
+    h.style.setProperty('display','flex','important');
+  }
+  function hide(){
+    const h=el('multiplayer-live-hud');
+    if(!h) return;
+    visible=false;
+    h.style.setProperty('display','none','important');
+  }
+
+  // Real rendered-frame measurement.
+  function frame(now){
+    frames++;
+    const dt=now-last;
+    if(dt>=500){
+      fps=(frames*1000)/dt;
+      frames=0;
+      last=now;
+      if(visible && el('live-fps')) el('live-fps').textContent=Math.round(fps)+' FPS';
+    }
+    requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  function connection(){
+    try{
+      if(typeof networkSocket!=='undefined' && networkSocket && networkSocket.readyState===WebSocket.OPEN) return networkSocket;
+      if(typeof isHost!=='undefined' && isHost){
+        if(typeof peerConns!=='undefined'){
+          return peerConns.find(c=>c && c.open) || null;
+        }
+      }else if(typeof hostConn!=='undefined' && hostConn && hostConn.open){
+        return hostConn;
+      }
+    }catch(e){}
+    return null;
+  }
+
+  function measurePing(){
+    if(!visible || pingPending) return;
+    const c=connection();
+    if(!c) return;
+
+    // The main game's handler will answer this and we measure round-trip time.
+    pingPending=true;
+    pingStarted=performance.now();
+    try{
+      c.send({type:'hud-ping-request', t:pingStarted});
+    }catch(e){
+      pingPending=false;
+    }
+    setTimeout(function(){
+      if(pingPending){
+        pingPending=false;
+        if(el('live-ping')) el('live-ping').textContent='-- ms';
+      }
+    },1800);
+  }
+
+  // Wrap the game's network handler without breaking its normal messages.
+  function installHandler(){
+    if(typeof window.handleNetwork!=='function'){
+      setTimeout(installHandler,250);
+      return;
+    }
+    if(window.__hudPingWrapped) return;
+    const original=window.handleNetwork;
+    window.handleNetwork=function(data,conn){
+      if(data && data.type==='hud-ping-request'){
+        try{ conn.send({type:'hud-ping-response', t:data.t}); }catch(e){}
+        return;
+      }
+      if(data && data.type==='hud-ping-response'){
+        const t=Number(data.t);
+        if(Number.isFinite(t)){
+          pingPending=false;
+          if(el('live-ping')) el('live-ping').textContent=Math.round(performance.now()-t)+' ms';
+        }
+        return;
+      }
+      return original.apply(this,arguments);
+    };
+    window.__hudPingWrapped=true;
+  }
+  installHandler();
+
+  pingTimer=setInterval(measurePing,1000);
+
+  // Server-code OK = setup is finished. This is the only point at which the
+  // HUD is allowed to appear for the host.
+  document.addEventListener('click',function(e){
+    const b=e.target && e.target.closest ? e.target.closest('button') : null;
+    if(!b) return;
+    const t=(b.textContent||'').trim().toUpperCase();
+    if(t==='OK'){
+      setTimeout(function(){
+        try{
+          if(typeof gameMode!=='undefined' && gameMode==='multi') show();
+        }catch(err){}
+      },100);
+    }
+  });
+
+  // For a client, show only after the actual connection is open.
+  setInterval(function(){
+    try{
+      if(typeof gameMode==='undefined' || gameMode!=='multi') return;
+      const c=connection();
+      if(c && c.open) show();
+    }catch(e){}
+  },500);
+
+  // Never show while the server-code popup/menu is still present.
+  setInterval(function(){
+    if(!visible) return;
+    const pop=document.querySelector('[id*="server"][id*="code"], [class*="server-code"]');
+    if(pop && getComputedStyle(pop).display!=='none'){
+      hide();
+    }
+  },250);
+})();
+</script>
+</body>
+</html>
